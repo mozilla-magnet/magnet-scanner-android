@@ -21,8 +21,7 @@ public class Scanner {
 
     public Scanner useBTLE() {
         if (!mScanners.containsKey(BTLEScanner.class.getName())) {
-            CallbackListener btleListener = new CallbackListener("BTLE");
-            mScanners.put(BTLEScanner.class.getName(), new BTLEScanner(mContext, btleListener));
+            mScanners.put(BTLEScanner.class.getName(), new BTLEScanner(mContext));
         }
         return this;
     }
@@ -32,27 +31,15 @@ public class Scanner {
         return this;
     }
 
-    public void start() throws Exception {
+    public void start(ScannerCallback cb) throws Exception {
         for (PWScanner scanner: mScanners.values()) {
-            scanner.start();
+            scanner.start(cb);
         }
     }
 
     public void stop() {
         for (PWScanner scanner: mScanners.values()) {
             scanner.stop();
-        }
-    }
-
-    private class CallbackListener implements ScannerCallback {
-        private String mType;
-        public CallbackListener(String type) {
-            mType = type;
-        }
-
-        @Override
-        public void onItemFound(JSONObject obj) {
-            System.out.println(mType + " found something!! --> " + obj.toString());
         }
     }
 

@@ -14,8 +14,10 @@ public class ScannerRunnable {
     private final ExecutorService mThreadPoolExecutor = Executors.newSingleThreadExecutor();
     private Future<?> mTask;
     private ScanRunner mRunner;
+    private ScannerCallback mCallback;
 
-    public ScannerRunnable(Context ctx) {
+    public ScannerRunnable(Context ctx, ScannerCallback cb) {
+        mCallback = cb;
         mScanner = new Scanner(ctx);
         mScanner.useBTLE().usemDNS();
         mRunner = new ScanRunner();
@@ -40,7 +42,7 @@ public class ScannerRunnable {
         public void run() {
             try {
                 isRunning = true;
-                mScanner.start();
+                mScanner.start(mCallback);
             } catch (Exception e) {
                 e.printStackTrace();
             }

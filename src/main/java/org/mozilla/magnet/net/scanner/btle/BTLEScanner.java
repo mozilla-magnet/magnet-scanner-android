@@ -19,30 +19,45 @@ public class BTLEScanner extends PWScanner {
     private final String TAG = BTLEScanner.class.getName();
     private BluetoothAdapter mBTAdapter;
     private Context mContext = null;
-    private ScannerCallback mCallback = null;
     private BluetoothAdapter.LeScanCallback mScanCallback = null;
 
-    public BTLEScanner(Context ctx, ScannerCallback cb) {
+    public BTLEScanner(Context ctx) {
+        super();
         mContext = ctx;
-        mCallback = cb;
         final BluetoothManager bluetoothManager = (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBTAdapter = bluetoothManager.getAdapter();
         mScanCallback = new BluetoothAdapter.LeScanCallback() {
             @Override
             public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-                Log.d(TAG, "rssi: " + rssi);
+                JSONObject parsed = EddyStoneParser.parse(scanRecord);
+                if (parsed == null) {
+                    return;
+                }
                 JSONObject json = new JSONObject();
+                JSONObject metadata = new JSONObject();
                 JSONArray values = toJSON(scanRecord);
                 try {
-                    json.put("values", values);
-                    json.put("rssi", rssi);
-                    json.put("bytes", scanRecord.toString());
-                } catch (JSONException e) {
-                    Log.d(TAG, "Error transforming json: " + e.getMessage());
+                    json.put("url", parsed.getString("url"));
+                    metadata.put("values", values);
+                    metadata.put("rssi", rssi);
+                    metadata.put("device", device.toString());
+                    if (parsed.has("txPower")) {
+                        metadata.put("distance", calculateDistance(parsed.getInt("txPower"), rssi));
+                        metadata.put("txPower", parsed.getInt("txPower"));
+                    }
+                    metadata.put("flags", parsed.getInt("flags"));
+                    json.put("metadata", metadata);
+                } catch(JSONException e) {
+                    return;
                 }
-                mCallback.onItemFound(json);
+                BTLEScanner.this.notify(json);
+
             }
         };
+    }
+
+    private double calculateDistance(int txPower, int rssi) {
+        return Math.pow(10, ((txPower - rssi) - 41) / 20);
     }
 
     @Override

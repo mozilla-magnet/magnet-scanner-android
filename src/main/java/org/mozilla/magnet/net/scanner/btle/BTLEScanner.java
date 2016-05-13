@@ -26,7 +26,7 @@ public class BTLEScanner extends PWScanner {
     private final static String TYPE = "btle";
 
     /**
-     * Constructo with context needed to launch the BTLE scanner.
+     * Constructor with context needed to launch the BTLE scanner.
      * @param ctx Context
      */
     public BTLEScanner(Context ctx) {

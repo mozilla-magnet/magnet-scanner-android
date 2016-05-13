@@ -3,6 +3,7 @@ package org.mozilla.magnet.net.scanner;
 import android.os.Looper;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -23,6 +24,12 @@ public abstract class PWScanner {
     public abstract String scannerType();
 
     protected void notify(JSONObject obj) {
+        if (obj.has("metadata")) {
+            try {
+                obj.getJSONObject("metadata").put("scanner", scannerType());
+            } catch (JSONException e) {
+            }
+        }
         mCallback.onItemFound(obj);
     }
 

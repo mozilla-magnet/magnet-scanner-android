@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.json.JSONObject;
 import org.mozilla.magnet.net.scanner.btle.BTLEScanner;
+import org.mozilla.magnet.net.scanner.mdns.MDNSScanner;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +28,9 @@ public class Scanner {
     }
 
     public Scanner usemDNS() {
-        System.out.println("mDNS not implemented");
+        if (!mScanners.containsKey(MDNSScanner.class.getName())) {
+            mScanners.put(MDNSScanner.class.getName(), new MDNSScanner(mContext));
+        }
         return this;
     }
 

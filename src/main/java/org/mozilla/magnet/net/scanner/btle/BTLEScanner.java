@@ -74,7 +74,7 @@ public class BTLEScanner extends PWScanner {
 
     @Override
     public String scannerType() {
-        return TAG;
+        return "btle";
     }
 
     private JSONArray toJSON(byte[] bytes) {

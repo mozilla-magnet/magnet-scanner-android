@@ -11,7 +11,7 @@ import org.json.JSONObject;
  */
 public abstract class PWScanner {
     private ScannerCallback mCallback;
-    private final static boolean ENSURE_OFF_UI_THREAD = false;
+    public static boolean ENSURE_OFF_UI_THREAD = false;
     public final void start(ScannerCallback cb) throws Exception {
         if (ENSURE_OFF_UI_THREAD) {
             ensureOffUIThread();

@@ -7,22 +7,43 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Created by arcturus on 10/05/2016.
+ * Parent class for all scanner strategies. Defines some common methos for notification and extra
+ * metadata appending.
+ * @author Francisco Jordano
  */
 public abstract class PWScanner {
     private ScannerCallback mCallback;
-    public static boolean ENSURE_OFF_UI_THREAD = false;
-    public final void start(ScannerCallback cb) throws Exception {
-        if (ENSURE_OFF_UI_THREAD) {
-            ensureOffUIThread();
-        }
+
+    /**
+     * Start the scanner mechanism.
+     * @param cb Callback object to be invoked when something has been discovered.
+     */
+    public final void start(ScannerCallback cb) {
         mCallback = cb;
         this.doStart();
     }
+
+    /**
+     * Performs the real scanning process, once the scanner object has been configured.
+     */
     protected abstract void doStart();
+
+    /**
+     * Stops the scanning
+     */
     public abstract void stop();
+
+    /**
+     * Returns a string that defines the name of the scanner strategy implemented
+     * @return String name for the strategy implemented.
+     */
     public abstract String scannerType();
 
+    /**
+     * Method that is called when the scanner discover an url. It also appends more metadata
+     * information, like the type of scanner.
+     * @param obj JSONObject containing the information about the url discovered.
+     */
     protected void notify(JSONObject obj) {
         if (obj.has("metadata")) {
             try {
@@ -31,11 +52,5 @@ public abstract class PWScanner {
             }
         }
         mCallback.onItemFound(obj);
-    }
-
-    protected void ensureOffUIThread() throws Exception {
-        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-            throw new Exception("Never run the scanner in the UI thread");
-        }
     }
 }

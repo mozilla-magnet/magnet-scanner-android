@@ -11,22 +11,33 @@ import org.json.JSONObject;
 import org.mozilla.magnet.net.scanner.PWScanner;
 
 /**
- * Created by arcturus on 13/05/16.
+ * Scanner that discovers web pages via mDNS protocol.
+ *
+ * @author Francisco Jordano
  */
 public class MDNSScanner extends PWScanner {
 
     private NsdManager.DiscoveryListener mDiscoveryListener;
     private NsdManager mNsdManager;
-    private final String TAG = MDNSScanner.class.getName();
-    private final String MDNS_SERVICE_TYPE = "_http._tcp.";
+    private final static String TAG = MDNSScanner.class.getName();
+    private final static String MDNS_SERVICE_TYPE = "_http._tcp.";
     private Context mContext = null;
+    private final static String SCAN_TYPE = "mdns";
 
+    /**
+     * Constructor with Context, needed to start the mDNS service.
+     * @param ctx Context object.
+     */
     public MDNSScanner(Context ctx) {
         mContext = ctx;
         mNsdManager = (NsdManager) mContext.getSystemService(Context.NSD_SERVICE);
         mDiscoveryListener = createListener();
     }
 
+    /**
+     * Returns an object that listens to all the discovery lifecycle on mDNS protocol.
+     * @return DiscoveryListener object to handle the different states.
+     */
     private NsdManager.DiscoveryListener createListener() {
         return new NsdManager.DiscoveryListener() {
 
@@ -82,18 +93,28 @@ public class MDNSScanner extends PWScanner {
         };
     }
 
+    /**
+     * Starts the mDNS discovery.
+     */
     @Override
     protected void doStart() {
         mNsdManager.discoverServices(MDNS_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
     }
 
+    /**
+     * Stops the mDNS discovery.
+     */
     @Override
     public void stop() {
         mNsdManager.stopServiceDiscovery(mDiscoveryListener);
     }
 
+    /**
+     * Kind of scanner type.
+     * @return String name of the scanner.
+     */
     @Override
     public String scannerType() {
-        return "mdns";
+        return SCAN_TYPE;
     }
 }

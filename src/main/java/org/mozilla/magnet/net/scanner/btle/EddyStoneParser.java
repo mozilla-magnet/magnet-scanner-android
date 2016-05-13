@@ -9,7 +9,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by arcturus on 10/05/2016.
+ * Tries to parse a Bluetooth Low Energy device to find out if there is Eddystone (or UriBeacon)
+ * information encoded.
+ * This is a pretty minimal version that doesn't implement all the characteristics of the Eddystone
+ * protocol.
+ * @author Francisco Jordano
  * Most of the code coming from:
  * https://github.com/google/physical-web/blob/master/android/PhysicalWeb/app/src/main/java/org/physical_web/physicalweb/ble/UriBeacon.java
  */
@@ -26,7 +30,8 @@ public class EddyStoneParser {
             "http://www.",
             "https://www.",
             "http://",
-            "https://"); // urn:uuid: not supported
+            "https://");
+            // urn:uuid: not supported
 
     private static final List<String> URL_CODES = Arrays.asList(
             ".com/",
@@ -46,6 +51,16 @@ public class EddyStoneParser {
     );
 
 
+    /**
+     * Given an array of bytes, the payload of a BTLE record, tries to parse finding Eddystone
+     * protocol attached. Also compatible with the previous UriBeacon.
+     *
+     * @param record Array of bytes defining the payload.
+     * @return JSONObject with the mandatory field 'url' if the parsing of the url has been correct
+     *  and an extra field 'metadata' with more information coming from the beacon, like distance,
+     *  transmision power, etc.
+     *  If the parser cannot find information of it's imcomplete, will return null.
+     */
     public static JSONObject parse(byte[] record) {
         JSONObject result = new JSONObject();
 
@@ -85,6 +100,12 @@ public class EddyStoneParser {
         return result;
     }
 
+    /**
+     * From the list of bytes decodes them to get back the string format of the url.
+     * @param serviceData Array of bytes containing the payload.
+     * @param offset Where the url information starts from.
+     * @return String with the url, null if cannot parse the information.
+     */
     private static String decodeUri(byte[] serviceData, int offset) {
         if (serviceData.length <= offset) {
             return null;
@@ -107,6 +128,11 @@ public class EddyStoneParser {
         return url;
     }
 
+    /**
+     * Tries to parse the payload of a BTLE beacon with the Eddystone protocol specification.
+     * @param scanRecord Array of bytes containing the payload
+     * @return Array of bytes containing the parsed data.
+     */
     private static byte[] parseEddystoneRecord(byte[] scanRecord) {
         int currentPos = 0;
         try {
@@ -137,6 +163,11 @@ public class EddyStoneParser {
         return null;
     }
 
+    /**
+     * Tries to parse the payload of a BTLE beacon with the Uribeacon protocol specification.
+     * @param scanRecord Array of bytes containing the payload
+     * @return Array of bytes containing the parsed data.
+     */
     private static byte[] parseUribeaconRecord(byte[] scanRecord) {
         int currentPos = 0;
         try {

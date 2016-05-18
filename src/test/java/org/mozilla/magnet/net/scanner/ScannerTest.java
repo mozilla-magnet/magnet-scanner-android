@@ -26,14 +26,13 @@ public class ScannerTest extends TestCase {
 
     @Mock private Map<String, PWScanner> scannersList;
     @InjectMocks private Scanner scanner;
-    @Mock Context context;
-    @Mock BTLEScanner btleScanner;
-    @Mock MDNSScanner mdnsScanner;
+    @Mock private Context context;
+    @Mock private BTLEScanner btleScanner;
+    @Mock private MDNSScanner mdnsScanner;
 
     @Before
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
-        scanner = new Scanner(context);
         scanner.useBTLE(btleScanner).usemDNS(mdnsScanner);
     }
 
@@ -54,6 +53,8 @@ public class ScannerTest extends TestCase {
 
         verify(btleScanner).start(cb);
         verify(mdnsScanner).start(cb);
+
+        verify(scannersList, calls(2));
     }
 
     @Test
@@ -63,4 +64,5 @@ public class ScannerTest extends TestCase {
         verify(btleScanner).stop();
         verify(mdnsScanner).stop();
     }
+
 }

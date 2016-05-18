@@ -31,7 +31,7 @@ public class ScannerTest extends TestCase {
     @Mock MDNSScanner mdnsScanner;
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
         scanner = new Scanner(context);
         scanner.useBTLE(btleScanner).usemDNS(mdnsScanner);

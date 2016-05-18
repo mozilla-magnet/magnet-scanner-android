@@ -17,6 +17,12 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 21
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    repositories {
+        maven { url 'http://repo1.maven.org/maven2' }
+        jcenter { url "http://jcenter.bintray.com/" }
     }
 
     buildTypes {
@@ -72,4 +78,12 @@ android.libraryVariants.all { variant ->
         options.links("http://developer.android.com/reference/");
         exclude '**/BuildConfig.java'
     }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    testCompile('com.android.support.test:runner:0.4') {
+        exclude group: 'junit'
+    }
+    testCompile "org.mockito:mockito-core:1.+"
 }

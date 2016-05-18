@@ -48,22 +48,30 @@ public class Scanner {
 
     /**
      * Configures the scanner to use the Bluetooth Low Energy scan.
+     * @param btleScanner BTLEScanner scanner object, used for testing
      * @return Scanner self object to allow chaining.
      */
-    public Scanner useBTLE() {
+    public Scanner useBTLE(BTLEScanner btleScanner) {
         if (!mScanners.containsKey(BTLEScanner.class.getName())) {
-            mScanners.put(BTLEScanner.class.getName(), new BTLEScanner(mContext));
+            if (btleScanner == null) {
+                new BTLEScanner(mContext);
+            }
+            mScanners.put(BTLEScanner.class.getName(), btleScanner);
         }
         return this;
     }
 
     /**
      * Configures the scanner to use mDNS scan.
+     * @param mdnsScanner Scanner already build, used for testing.
      * @return Scanner self object to allow chaining.
      */
-    public Scanner usemDNS() {
+    public Scanner usemDNS(MDNSScanner mdnsScanner) {
         if (!mScanners.containsKey(MDNSScanner.class.getName())) {
-            mScanners.put(MDNSScanner.class.getName(), new MDNSScanner(mContext));
+            if (mdnsScanner == null) {
+                mdnsScanner = new MDNSScanner(mContext);
+            }
+            mScanners.put(MDNSScanner.class.getName(), mdnsScanner);
         }
         return this;
     }

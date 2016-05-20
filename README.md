@@ -1,4 +1,4 @@
-Magne Scanner (java)
+magnet-scanner-java
 ====================
 This is an android library that you can use in your projects to discover physical web objects around you.
 

@@ -8,14 +8,14 @@ import android.webkit.URLUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.magnet.net.scanner.PWScanner;
+import org.mozilla.magnet.net.scanner.BaseScanner;
 
 /**
- * Scanner that discovers web pages via mDNS protocol.
+ * MagnetScanner that discovers web pages via mDNS protocol.
  *
  * @author Francisco Jordano
  */
-public class MDNSScanner extends PWScanner {
+public class MDNSScanner extends BaseScanner {
 
     private NsdManager.DiscoveryListener mDiscoveryListener;
     private NsdManager mNsdManager;

@@ -1,7 +1,6 @@
 package org.mozilla.magnet.net.scanner;
 
 import android.content.Context;
-import android.support.test.runner.AndroidJUnit4;
 
 import junit.framework.TestCase;
 
@@ -24,8 +23,8 @@ import static org.mockito.Mockito.*;
 @RunWith(JUnit4.class)
 public class ScannerTest extends TestCase {
 
-    @Mock private Map<String, PWScanner> scannersList;
-    @InjectMocks private Scanner scanner;
+    @Mock private Map<String, BaseScanner> scannersList;
+    @InjectMocks private MagnetScanner magnetScanner;
     @Mock private Context context;
     @Mock private BTLEScanner btleScanner;
     @Mock private MDNSScanner mdnsScanner;
@@ -33,7 +32,7 @@ public class ScannerTest extends TestCase {
     @Before
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
-        scanner.useBTLE(btleScanner).usemDNS(mdnsScanner);
+        magnetScanner.useBTLE(btleScanner).usemDNS(mdnsScanner);
     }
 
     @After
@@ -43,13 +42,13 @@ public class ScannerTest extends TestCase {
 
     @Test
     public void start() {
-        ScannerCallback cb = new ScannerCallback() {
+        MagnetScannerCallback cb = new MagnetScannerCallback() {
             @Override
             public void onItemFound(JSONObject obj) {
 
             }
         };
-        scanner.start(cb);
+        magnetScanner.start(cb);
 
         verify(btleScanner).start(cb);
         verify(mdnsScanner).start(cb);
@@ -59,7 +58,7 @@ public class ScannerTest extends TestCase {
 
     @Test
     public void stop() {
-        scanner.stop();
+        magnetScanner.stop();
 
         verify(btleScanner).stop();
         verify(mdnsScanner).stop();

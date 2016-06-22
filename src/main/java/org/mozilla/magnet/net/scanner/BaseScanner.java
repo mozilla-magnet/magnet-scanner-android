@@ -1,8 +1,5 @@
 package org.mozilla.magnet.net.scanner;
 
-import android.os.Looper;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,14 +8,14 @@ import org.json.JSONObject;
  * metadata appending.
  * @author Francisco Jordano
  */
-public abstract class PWScanner {
-    private ScannerCallback mCallback;
+public abstract class BaseScanner {
+    private MagnetScannerCallback mCallback;
 
     /**
      * Start the scanner mechanism.
      * @param cb Callback object to be invoked when something has been discovered.
      */
-    public final void start(ScannerCallback cb) {
+    public final void start(MagnetScannerCallback cb) {
         mCallback = cb;
         this.doStart();
     }

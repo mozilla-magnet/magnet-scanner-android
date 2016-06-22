@@ -8,7 +8,7 @@ import org.json.JSONObject;
  *
  * @author Francisco Jordano
  */
-public interface ScannerCallback {
+public interface MagnetScannerCallback {
     /**
      *
      * @param obj JSONObject with the information, will have a mandatory 'url' field and can have

@@ -12,7 +12,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.mozilla.magnet.scanner">
+    package="org.mozilla.magnet.net.scanner">
 
   <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="21"/>
   <uses-permission android:name="android.permission.BLUETOOTH" />

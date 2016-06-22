@@ -2,7 +2,6 @@ package org.mozilla.magnet.net.scanner;
 
 import android.content.Context;
 
-import org.json.JSONObject;
 import org.mozilla.magnet.net.scanner.btle.BTLEScanner;
 import org.mozilla.magnet.net.scanner.mdns.MDNSScanner;
 
@@ -15,12 +14,12 @@ import java.util.Map;
  * It also allows to configure which kind of discovery mechanism you want to
  * use.
  * When starting the scan you will need to pass a callback object implementing
- * ScannerCallback to receive the results discovered.
+ * MagnetScannerCallback to receive the results discovered.
  * For example, for discovering web pages via Bluetooth Low Energy and mDNS
  * you can use:
  * <pre>
  * {@code
- * Scanner scanner = new Scanner(getApplicationContext());
+ * MagnetScanner scanner = new MagnetScanner(getApplicationContext());
  * scanner.useBTLE().usemDNS();
  * scanner.start(...);
  *}
@@ -31,27 +30,27 @@ import java.util.Map;
  *
  * @author Francisco Jordano
  */
-public class Scanner {
+public class MagnetScanner {
     /**
      * List of different scanning strategies.
      */
-    private final Map<String, PWScanner> mScanners = new HashMap<String, PWScanner>();
+    private final Map<String, BaseScanner> mScanners = new HashMap<String, BaseScanner>();
     private Context mContext = null;
 
     /**
      * Constructor with Context.
      * @param ctx Context needed to instantiate some of the scanners
      */
-    public Scanner(Context ctx) {
+    public MagnetScanner(Context ctx) {
         mContext = ctx;
     }
 
     /**
      * Configures the scanner to use the Bluetooth Low Energy scan.
      * @param btleScanner BTLEScanner scanner object, used for testing
-     * @return Scanner self object to allow chaining.
+     * @return MagnetScanner self object to allow chaining.
      */
-    public Scanner useBTLE(BTLEScanner btleScanner) {
+    public MagnetScanner useBTLE(BTLEScanner btleScanner) {
         if (!mScanners.containsKey(BTLEScanner.class.getName())) {
             if (btleScanner == null) {
                 new BTLEScanner(mContext);
@@ -63,10 +62,10 @@ public class Scanner {
 
     /**
      * Configures the scanner to use mDNS scan.
-     * @param mdnsScanner Scanner already build, used for testing.
-     * @return Scanner self object to allow chaining.
+     * @param mdnsScanner MagnetScanner already build, used for testing.
+     * @return MagnetScanner self object to allow chaining.
      */
-    public Scanner usemDNS(MDNSScanner mdnsScanner) {
+    public MagnetScanner usemDNS(MDNSScanner mdnsScanner) {
         if (!mScanners.containsKey(MDNSScanner.class.getName())) {
             if (mdnsScanner == null) {
                 mdnsScanner = new MDNSScanner(mContext);
@@ -81,8 +80,8 @@ public class Scanner {
      * to call `start` to properly trigger the scanning.
      * @param cb Callback object that will be invoked everytime any scanner finds a web around you.
      */
-    public void start(ScannerCallback cb) {
-        for (PWScanner scanner: mScanners.values()) {
+    public void start(MagnetScannerCallback cb) {
+        for (BaseScanner scanner: mScanners.values()) {
             scanner.start(cb);
         }
     }
@@ -91,7 +90,7 @@ public class Scanner {
      * Stops the scanning strategies.
      */
     public void stop() {
-        for (PWScanner scanner: mScanners.values()) {
+        for (BaseScanner scanner: mScanners.values()) {
             scanner.stop();
         }
     }

@@ -9,16 +9,15 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.magnet.net.scanner.PWScanner;
-import org.mozilla.magnet.net.scanner.ScannerCallback;
+import org.mozilla.magnet.net.scanner.BaseScanner;
 
 /**
- * Scanner to discover web pages via Bluetooth Low Energy beacons using
+ * MagnetScanner to discover web pages via Bluetooth Low Energy beacons using
  * the Eddystone (https://github.com/google/eddystone) protocol.
  *
  * @author Francisco Jordano
  */
-public class BTLEScanner extends PWScanner {
+public class BTLEScanner extends BaseScanner {
     private final String TAG = BTLEScanner.class.getName();
     private BluetoothAdapter mBTAdapter;
     private Context mContext = null;

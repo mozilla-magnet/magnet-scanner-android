@@ -21,12 +21,13 @@ import java.util.Map;
  */
 public class ScannerBLE extends BaseScanner {
     private final String TAG = ScannerBLE.class.getName();
+    private final static String TYPE = "btle";
+    private final static int HASH_MAX_SIZE = 20;
+    private final int MIN_NOTIFY_INVERVAL_MS = 5000;
+    private final MaxSizeHashMap<String, Long> mNotifyHistory = new MaxSizeHashMap<String, Long>(HASH_MAX_SIZE);
+    private BluetoothAdapter.LeScanCallback mScanCallback = null;
     private BluetoothAdapter mBTAdapter;
     private Context mContext = null;
-    private BluetoothAdapter.LeScanCallback mScanCallback = null;
-    private final static String TYPE = "btle";
-    private MaxSizeHashMap<String, Long> mNotifyHistory = new MaxSizeHashMap<String, Long>(20);
-    private final int MIN_NOTIFY_INVERVAL_MS = 5000;
 
     /**
      * Constructor with context needed to launch the BTLE scanner.
@@ -52,6 +53,7 @@ public class ScannerBLE extends BaseScanner {
                 }
 
                 item.setDevice(device.toString());
+                item.setType(scannerType());
                 ScannerBLE.this.notify(item);
                 logNotify(item);
             }

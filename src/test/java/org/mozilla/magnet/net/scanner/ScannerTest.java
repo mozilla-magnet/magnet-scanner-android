@@ -4,7 +4,6 @@ import android.content.Context;
 
 import junit.framework.TestCase;
 
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +43,7 @@ public class ScannerTest extends TestCase {
     public void start() {
         MagnetScannerCallback cb = new MagnetScannerCallback() {
             @Override
-            public void onItemFound(JSONObject obj) {
+            public void onItemFound(MagnetScannerItem obj) {
 
             }
         };

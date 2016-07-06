@@ -9,10 +9,5 @@ import org.json.JSONObject;
  * @author Francisco Jordano
  */
 public interface MagnetScannerCallback {
-    /**
-     *
-     * @param obj JSONObject with the information, will have a mandatory 'url' field and can have
-     *            an optional 'metadata' field.
-     */
-    public void onItemFound(JSONObject obj);
+    public void onItemFound(MagnetScannerItem item);
 }

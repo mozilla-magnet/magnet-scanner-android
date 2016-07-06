@@ -60,7 +60,7 @@ public class ScannerMDNS extends BaseScanner {
 
                 MagnetScannerItem item = new MagnetScannerItem();
                 item.setUrl(name);
-                item.setType(service.getServiceType());
+                item.setType(scannerType());
                 ScannerMDNS.this.notify(item);
             }
 

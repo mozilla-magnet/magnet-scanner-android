@@ -41,13 +41,7 @@ public abstract class BaseScanner {
      * information, like the type of scanner.
      * @param obj JSONObject containing the information about the url discovered.
      */
-    protected void notify(JSONObject obj) {
-        if (obj.has("metadata")) {
-            try {
-                obj.getJSONObject("metadata").put("scanner", scannerType());
-            } catch (JSONException e) {
-            }
-        }
-        mCallback.onItemFound(obj);
+    protected void notify(MagnetScannerItem item) {
+        mCallback.onItemFound(item);
     }
 }

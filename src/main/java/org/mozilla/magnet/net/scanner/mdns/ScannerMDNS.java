@@ -9,17 +9,18 @@ import android.webkit.URLUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.magnet.net.scanner.BaseScanner;
+import org.mozilla.magnet.net.scanner.MagnetScannerItem;
 
 /**
  * MagnetScanner that discovers web pages via mDNS protocol.
  *
  * @author Francisco Jordano
  */
-public class MDNSScanner extends BaseScanner {
+public class ScannerMDNS extends BaseScanner {
 
     private NsdManager.DiscoveryListener mDiscoveryListener;
     private NsdManager mNsdManager;
-    private final static String TAG = MDNSScanner.class.getName();
+    private final static String TAG = ScannerMDNS.class.getName();
     private final static String MDNS_SERVICE_TYPE = "_http._tcp.";
     private Context mContext = null;
     private final static String SCAN_TYPE = "mdns";
@@ -28,7 +29,7 @@ public class MDNSScanner extends BaseScanner {
      * Constructor with Context, needed to start the mDNS service.
      * @param ctx Context object.
      */
-    public MDNSScanner(Context ctx) {
+    public ScannerMDNS(Context ctx) {
         mContext = ctx;
         mNsdManager = (NsdManager) mContext.getSystemService(Context.NSD_SERVICE);
         mDiscoveryListener = createListener();
@@ -49,22 +50,18 @@ public class MDNSScanner extends BaseScanner {
 
             @Override
             public void onServiceFound(NsdServiceInfo service) {
-                // A service was found!  Do something with it
-                Log.d(TAG, "Service discovery success" + service);
+                Log.d(TAG, "service found: " + service);
                 String name = service.getServiceName();
-                if (URLUtil.isNetworkUrl(name)) {
-                    JSONObject result = new JSONObject();
-                    try {
-                        result.put("url", name);
-                        JSONObject metadata = new JSONObject();
-                        metadata.put("type", service.getServiceType());
-                        result.put("metadata", metadata);
 
-                        MDNSScanner.this.notify(result);
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Could not create response object for " + name);
-                    }
+                // not all mdns advertisements are urls
+                if (!URLUtil.isNetworkUrl(name)) {
+                    return;
                 }
+
+                MagnetScannerItem item = new MagnetScannerItem();
+                item.setUrl(name);
+                item.setType(service.getServiceType());
+                ScannerMDNS.this.notify(item);
             }
 
             @Override

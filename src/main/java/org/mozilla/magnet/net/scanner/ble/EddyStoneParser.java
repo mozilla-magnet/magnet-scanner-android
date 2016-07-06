@@ -1,9 +1,8 @@
-package org.mozilla.magnet.net.scanner.btle;
+package org.mozilla.magnet.net.scanner.ble;
 
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.mozilla.magnet.net.scanner.MagnetScannerItem;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,23 +60,25 @@ public class EddyStoneParser {
      *  transmision power, etc.
      *  If the parser cannot find information of it's imcomplete, will return null.
      */
-    public static JSONObject parse(byte[] record) {
-        JSONObject result = new JSONObject();
-
+    public static MagnetScannerItem parse(byte[] record, int rssi) {
+        MagnetScannerItem item = new MagnetScannerItem();
         byte[] serviceData = parseEddystoneRecord(record);
         int currentPos = 0;
         byte flags;
         byte txPowerLevel;
         String uri;
+
         if (serviceData != null && serviceData.length >= 2) {
             flags = serviceData[currentPos++];
             txPowerLevel = serviceData[currentPos++];
             uri = decodeUri(serviceData, currentPos);
         } else {
             serviceData = parseUribeaconRecord(record);
+
             if (serviceData == null || serviceData.length < 2) {
                 return null;
             }
+
             currentPos = 0;
             txPowerLevel = serviceData[currentPos++];
             flags = (byte) (serviceData[currentPos] >> 4);
@@ -89,15 +90,22 @@ public class EddyStoneParser {
             return null;
         }
 
-        try {
-            result.put("url", uri);
-            result.put("flags", flags);
-            result.put("txPower", txPowerLevel);
-        } catch (JSONException e) {
-            return null;
-        }
+        item.setUrl(uri);
+        item.setDistance(calculateDistance(txPowerLevel, rssi));
 
-        return result;
+        return item;
+    }
+
+    /**
+     * Calculates the distance to the beacon based on transmission power configured in the beacon
+     * and rssi detected with our sensor.
+     * https://github.com/google/physical-web/blob/master/web-service/helpers.py#L124
+     * @param txPower int Transmission power, configured in the beacon.
+     * @param rssi int Received signal strength.
+     * @return
+     */
+    private static double calculateDistance(int txPower, int rssi) {
+        return Math.pow(10, ((txPower - rssi) - 41) / 20);
     }
 
     /**

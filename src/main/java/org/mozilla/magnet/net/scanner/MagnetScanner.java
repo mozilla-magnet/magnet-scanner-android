@@ -2,8 +2,8 @@ package org.mozilla.magnet.net.scanner;
 
 import android.content.Context;
 
-import org.mozilla.magnet.net.scanner.btle.BTLEScanner;
-import org.mozilla.magnet.net.scanner.mdns.MDNSScanner;
+import org.mozilla.magnet.net.scanner.ble.ScannerBLE;
+import org.mozilla.magnet.net.scanner.mdns.ScannerMDNS;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ import java.util.Map;
  * <pre>
  * {@code
  * MagnetScanner scanner = new MagnetScanner(getApplicationContext());
- * scanner.useBTLE().usemDNS();
+ * scanner.useBLE().useMDNS();
  * scanner.start(...);
  *}
  * </pre>
@@ -47,15 +47,15 @@ public class MagnetScanner {
 
     /**
      * Configures the scanner to use the Bluetooth Low Energy scan.
-     * @param btleScanner BTLEScanner scanner object, used for testing
+     * @param btleScanner ScannerBLE scanner object, used for testing
      * @return MagnetScanner self object to allow chaining.
      */
-    public MagnetScanner useBTLE(BTLEScanner btleScanner) {
-        if (!mScanners.containsKey(BTLEScanner.class.getName())) {
+    public MagnetScanner useBLE(ScannerBLE btleScanner) {
+        if (!mScanners.containsKey(ScannerBLE.class.getName())) {
             if (btleScanner == null) {
-                new BTLEScanner(mContext);
+                btleScanner = new ScannerBLE(mContext);
             }
-            mScanners.put(BTLEScanner.class.getName(), btleScanner);
+            mScanners.put(ScannerBLE.class.getName(), btleScanner);
         }
         return this;
     }
@@ -65,12 +65,12 @@ public class MagnetScanner {
      * @param mdnsScanner MagnetScanner already build, used for testing.
      * @return MagnetScanner self object to allow chaining.
      */
-    public MagnetScanner usemDNS(MDNSScanner mdnsScanner) {
-        if (!mScanners.containsKey(MDNSScanner.class.getName())) {
+    public MagnetScanner useMDNS(ScannerMDNS mdnsScanner) {
+        if (!mScanners.containsKey(ScannerMDNS.class.getName())) {
             if (mdnsScanner == null) {
-                mdnsScanner = new MDNSScanner(mContext);
+                mdnsScanner = new ScannerMDNS(mContext);
             }
-            mScanners.put(MDNSScanner.class.getName(), mdnsScanner);
+            mScanners.put(ScannerMDNS.class.getName(), mdnsScanner);
         }
         return this;
     }
@@ -94,6 +94,4 @@ public class MagnetScanner {
             scanner.stop();
         }
     }
-
-
 }

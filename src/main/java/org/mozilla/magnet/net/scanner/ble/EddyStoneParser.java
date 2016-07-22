@@ -105,7 +105,8 @@ public class EddyStoneParser {
      * @return
      */
     private static double calculateDistance(int txPower, int rssi) {
-        return Math.pow(10, ((txPower - rssi) - 41) / 20);
+        double x = ((txPower - rssi) - 41.0) / 20.0;
+        return Math.pow(10.0, x);
     }
 
     /**

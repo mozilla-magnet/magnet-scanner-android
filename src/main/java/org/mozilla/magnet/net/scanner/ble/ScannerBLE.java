@@ -42,13 +42,16 @@ public class ScannerBLE extends BaseScanner {
         mScanCallback = new BluetoothAdapter.LeScanCallback() {
             @Override
             public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+                Log.d(TAG, "item found");
                 MagnetScannerItem item = EddyStoneParser.parse(scanRecord, rssi);
 
                 if (item == null) {
+                    Log.d(TAG, "unable to parse");
                     return;
                 }
 
                 if (!shouldNotify(item)) {
+                    Log.d(TAG, "not notifying (throttled)");
                     return;
                 }
 
@@ -78,7 +81,7 @@ public class ScannerBLE extends BaseScanner {
      */
     @Override
     protected void doStart() {
-        Log.d(TAG, "Starting scan");
+        Log.d(TAG, "starting scan");
         mBTAdapter.startLeScan(mScanCallback);
     }
 
@@ -87,7 +90,7 @@ public class ScannerBLE extends BaseScanner {
      */
     @Override
     public void stop() {
-        Log.d(TAG, "Stopping scan");
+        Log.d(TAG, "stopping scan");
         mBTAdapter.stopLeScan(mScanCallback);
     }
 

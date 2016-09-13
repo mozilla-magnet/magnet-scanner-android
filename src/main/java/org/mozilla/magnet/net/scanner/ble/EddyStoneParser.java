@@ -120,21 +120,28 @@ public class EddyStoneParser {
             return null;
         }
 
-        byte schemeByte = serviceData[offset++];
-        String scheme = URI_SCHEMES.get(schemeByte);
-        if (schemeByte >= URI_SCHEMES.size()) {
-            return null;
-        }
-        String url = new String(scheme);
-        while(offset < serviceData.length) {
-            byte b = serviceData[offset++];
-            if (b >= URL_CODES.size()) {
-                url += (char) b;
-            } else {
-                url += URL_CODES.get(b);
+        try {
+            byte schemeByte = serviceData[offset++];
+            String scheme = URI_SCHEMES.get(schemeByte);
+            if (schemeByte >= URI_SCHEMES.size()) {
+                return null;
             }
+            String url = new String(scheme);
+            while (offset < serviceData.length) {
+                byte b = serviceData[offset++];
+                if (b >= URL_CODES.size()) {
+                    url += (char) b;
+                } else {
+                    url += URL_CODES.get(b);
+                }
+            }
+
+            return url;
+        } catch (Exception e) {
+            Log.e(TAG, "unable to decode uri: " + Arrays.toString(serviceData), e);
         }
-        return url;
+
+        return null;
     }
 
     /**

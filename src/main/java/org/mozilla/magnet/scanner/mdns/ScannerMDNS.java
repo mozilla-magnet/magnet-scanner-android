@@ -1,4 +1,4 @@
-package org.mozilla.magnet.net.scanner.mdns;
+package org.mozilla.magnet.scanner.mdns;
 
 import android.content.Context;
 import android.net.nsd.NsdManager;
@@ -8,8 +8,8 @@ import android.webkit.URLUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.magnet.net.scanner.BaseScanner;
-import org.mozilla.magnet.net.scanner.MagnetScannerItem;
+import org.mozilla.magnet.scanner.BaseScanner;
+import org.mozilla.magnet.scanner.MagnetScannerItem;
 
 /**
  * MagnetScanner that discovers web pages via mDNS protocol.

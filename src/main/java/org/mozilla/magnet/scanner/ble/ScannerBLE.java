@@ -1,4 +1,4 @@
-package org.mozilla.magnet.net.scanner.ble;
+package org.mozilla.magnet.scanner.ble;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -7,8 +7,8 @@ import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONArray;
-import org.mozilla.magnet.net.scanner.BaseScanner;
-import org.mozilla.magnet.net.scanner.MagnetScannerItem;
+import org.mozilla.magnet.scanner.BaseScanner;
+import org.mozilla.magnet.scanner.MagnetScannerItem;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

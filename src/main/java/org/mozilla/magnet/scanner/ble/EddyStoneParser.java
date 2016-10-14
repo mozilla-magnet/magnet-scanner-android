@@ -1,8 +1,8 @@
-package org.mozilla.magnet.net.scanner.ble;
+package org.mozilla.magnet.scanner.ble;
 
 import android.util.Log;
 
-import org.mozilla.magnet.net.scanner.MagnetScannerItem;
+import org.mozilla.magnet.scanner.MagnetScannerItem;
 
 import java.util.Arrays;
 import java.util.List;

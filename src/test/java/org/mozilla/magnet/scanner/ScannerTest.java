@@ -1,4 +1,4 @@
-package org.mozilla.magnet.net.scanner;
+package org.mozilla.magnet.scanner;
 
 import android.content.Context;
 
@@ -12,8 +12,8 @@ import org.junit.runners.JUnit4;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mozilla.magnet.net.scanner.ble.ScannerBLE;
-import org.mozilla.magnet.net.scanner.mdns.ScannerMDNS;
+import org.mozilla.magnet.scanner.ble.ScannerBLE;
+import org.mozilla.magnet.scanner.mdns.ScannerMDNS;
 
 import java.util.Map;
 

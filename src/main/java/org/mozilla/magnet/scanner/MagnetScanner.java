@@ -1,9 +1,10 @@
-package org.mozilla.magnet.net.scanner;
+package org.mozilla.magnet.scanner;
 
 import android.content.Context;
 
-import org.mozilla.magnet.net.scanner.ble.ScannerBLE;
-import org.mozilla.magnet.net.scanner.mdns.ScannerMDNS;
+import org.mozilla.magnet.scanner.ble.ScannerBLE;
+import org.mozilla.magnet.scanner.geolocation.ScannerGeolocation;
+import org.mozilla.magnet.scanner.mdns.ScannerMDNS;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,6 +72,20 @@ public class MagnetScanner {
                 mdnsScanner = new ScannerMDNS(mContext);
             }
             mScanners.put(ScannerMDNS.class.getName(), mdnsScanner);
+        }
+        return this;
+    }
+
+    /**
+     * Configures the scanner to use geolocation scan.
+     * @return MagnetScanner self object to allow chaining.
+     */
+    public MagnetScanner useGeolocation(ScannerGeolocation scanner) {
+        if (!mScanners.containsKey(ScannerGeolocation.class.getName())) {
+            if (scanner == null) {
+                scanner = new ScannerGeolocation(mContext);
+            }
+            mScanners.put(ScannerGeolocation.class.getName(), scanner);
         }
         return this;
     }

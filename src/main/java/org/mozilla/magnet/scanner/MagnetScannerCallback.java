@@ -1,4 +1,4 @@
-package org.mozilla.magnet.net.scanner;
+package org.mozilla.magnet.scanner;
 
 import org.json.JSONObject;
 

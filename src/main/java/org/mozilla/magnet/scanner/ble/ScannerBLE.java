@@ -4,13 +4,16 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.mozilla.magnet.scanner.BaseScanner;
 import org.mozilla.magnet.scanner.MagnetScannerItem;
+import org.mozilla.magnet.scanner.MagnetScannerListener;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -19,79 +22,24 @@ import java.util.Map;
  *
  * @author Francisco Jordano
  */
-public class ScannerBLE extends BaseScanner {
+public class ScannerBLE extends BaseScanner implements BluetoothAdapter.LeScanCallback {
     private final String TAG = ScannerBLE.class.getName();
-    private final static String TYPE = "btle";
-    private final static int HASH_MAX_SIZE = 20;
-    private final int MIN_NOTIFY_INVERVAL_MS = 5000;
-    private final MaxSizeHashMap<String, Long> mNotifyHistory = new MaxSizeHashMap<String, Long>(HASH_MAX_SIZE);
-    private BluetoothAdapter.LeScanCallback mScanCallback = null;
+    private final int EXPIRE_CHECK_INTERVAL_MS = 6000;
+    private final int ITEM_MAX_AGE_MS = 5000;
+    private final static String TYPE = "ble";
     private BluetoothAdapter mBTAdapter;
     private Context mContext = null;
+    private Handler mHandler;
 
     /**
      * Constructor with context needed to launch the BTLE scanner.
-     * @param ctx Context
+     * @param context Context
      */
-    public ScannerBLE(Context ctx) {
-        super();
-        mContext = ctx;
+    public ScannerBLE(Context context, MagnetScannerListener listener) {
+        super(listener);
+        mContext = context;
         final BluetoothManager bluetoothManager = (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBTAdapter = bluetoothManager.getAdapter();
-
-        mScanCallback = new BluetoothAdapter.LeScanCallback() {
-            @Override
-            public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-                Log.d(TAG, "item found");
-                MagnetScannerItem item = EddyStoneParser.parse(scanRecord, rssi);
-
-                if (item == null) {
-                    Log.d(TAG, "unable to parse");
-                    return;
-                }
-
-                if (!shouldNotify(item)) {
-                    Log.d(TAG, "not notifying (throttled)");
-                    return;
-                }
-
-                item.setDevice(device.toString());
-                item.setType(scannerType());
-                ScannerBLE.this.notify(item);
-                logNotify(item);
-            }
-        };
-    }
-
-    private boolean shouldNotify(MagnetScannerItem item) {
-        String url = item.getUrl();
-        Long now = System.currentTimeMillis();
-        Long last = mNotifyHistory.get(url);
-        return last == null || now - last > MIN_NOTIFY_INVERVAL_MS;
-    }
-
-    private void logNotify(MagnetScannerItem item) {
-        String url = item.getUrl();
-        Long now = System.currentTimeMillis();
-        mNotifyHistory.put(url, now);
-    }
-
-    /**
-     * Starts the scanning.
-     */
-    @Override
-    protected void doStart() {
-        Log.d(TAG, "starting scan");
-        mBTAdapter.startLeScan(mScanCallback);
-    }
-
-    /**
-     * Stops the scanning.
-     */
-    @Override
-    public void stop() {
-        Log.d(TAG, "stopping scan");
-        mBTAdapter.stopLeScan(mScanCallback);
     }
 
     /**
@@ -100,30 +48,85 @@ public class ScannerBLE extends BaseScanner {
      */
     @Override
     public String scannerType() {
-        return "btle";
+        return TYPE;
     }
 
     /**
-     * Transforms an array of bytes into a JSONArray to be appended as part of the metadata.
-     * @param bytes Payload discovered in the beacon.
-     * @return JSONArray to be appended to the metadata section of the discovered object.
+     * Starts the scanning.
      */
-    private JSONArray toJSON(byte[] bytes) {
-        JSONArray array = new JSONArray();
-        for (byte item:bytes) array.put(item);
-        return array;
+    @Override
+    protected void start() {
+        Log.d(TAG, "starting scan");
+        mHandler = new Handler();
+        mBTAdapter.startLeScan(this);
+        startExpireCheck();
     }
 
-    private static class MaxSizeHashMap<K, V> extends LinkedHashMap<K, V> {
-        private final int maxSize;
-
-        public MaxSizeHashMap(int maxSize) {
-            this.maxSize = maxSize;
-        }
-
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-            return size() > maxSize;
-        }
+    /**
+     * Stops the scanning.
+     */
+    @Override
+    public void stop() {
+        super.stop();
+        Log.d(TAG, "stopping scan");
+        mBTAdapter.stopLeScan(this);
+        stopExpireCheck();
     }
+
+    @Override
+    public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+        MagnetScannerItem item = EddyStoneParser.parse(scanRecord, rssi);
+
+        // not all ble advertisements are eddystone-url
+        if (item == null) { return; }
+
+        String id = item.getUrl();
+        MagnetScannerItem existingItem = getItem(id);
+
+        // if item already in cache, touch and exit
+        if (existingItem != null) {
+            existingItem.touch();
+            return;
+        }
+
+        item.setDevice(device.toString());
+        item.setType(scannerType());
+        addItem(item);
+    }
+
+    private void startExpireCheck() {
+        scheduleExpireCheck();
+    }
+
+    private void stopExpireCheck() {
+        mHandler.removeCallbacks(expireCheck);
+    }
+
+    private void scheduleExpireCheck() {
+        mHandler.postDelayed(expireCheck, EXPIRE_CHECK_INTERVAL_MS);
+    }
+
+    private Runnable expireCheck = new Runnable() {
+        public void run() {
+            Map items = getItems();
+            Iterator it = items.entrySet().iterator();
+            long now = System.currentTimeMillis();
+
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry) it.next();
+                String id = (String) pair.getKey();
+                MagnetScannerItem item = (MagnetScannerItem) pair.getValue();
+                long lastSeen = item.getLastSeen();
+                long age = now - lastSeen;
+
+                // remove expired mItems
+                if (age > ITEM_MAX_AGE_MS) {
+                    removeItem(id);
+                }
+            }
+
+            // loop
+            scheduleExpireCheck();
+        }
+    };
 }

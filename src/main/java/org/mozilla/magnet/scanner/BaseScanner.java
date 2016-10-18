@@ -1,7 +1,12 @@
 package org.mozilla.magnet.scanner;
 
+import android.support.annotation.CallSuper;
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
 
 /**
  * Parent class for all scanner strategies. Defines some common methos for notification and extra
@@ -9,26 +14,13 @@ import org.json.JSONObject;
  * @author Francisco Jordano
  */
 public abstract class BaseScanner {
-    private MagnetScannerCallback mCallback;
+    private final static String TAG = "BaseScanner";
+    private MagnetScannerListener mListener;
+    private final HashMap<String,MagnetScannerItem> mItems = new HashMap<String,MagnetScannerItem>();
 
-    /**
-     * Start the scanner mechanism.
-     * @param cb Callback object to be invoked when something has been discovered.
-     */
-    public final void start(MagnetScannerCallback cb) {
-        mCallback = cb;
-        this.doStart();
+    public BaseScanner(MagnetScannerListener listener) {
+        mListener = listener;
     }
-
-    /**
-     * Performs the real scanning process, once the scanner object has been configured.
-     */
-    protected abstract void doStart();
-
-    /**
-     * Stops the scanning
-     */
-    public abstract void stop();
 
     /**
      * Returns a string that defines the name of the scanner strategy implemented
@@ -37,11 +29,48 @@ public abstract class BaseScanner {
     public abstract String scannerType();
 
     /**
+     * Performs the real scanning process, once the scanner object has been configured.
+     */
+    protected abstract void start();
+
+    /**
+     * Stops the scanning
+     */
+    @CallSuper
+    public void stop() {
+        mItems.clear();
+    }
+
+    public HashMap<String, MagnetScannerItem> getItems() {
+        return mItems;
+    }
+
+    public MagnetScannerItem getItem(String id) {
+        return mItems.get(id);
+    }
+
+    public void addItem(MagnetScannerItem item) {
+        Log.d(TAG, "add item: " + item.getUrl());
+        mItems.put(item.getUrl(), item);
+        mListener.onItemFound(item);
+    }
+
+    public void removeItem(String id) {
+        Log.d(TAG, "remove item: " + id);
+        MagnetScannerItem item = getItem(id);
+        mItems.remove(id);
+        mListener.onItemLost(item);
+    }
+
+    /**
      * Method that is called when the scanner discover an url. It also appends more metadata
      * information, like the type of scanner.
-     * @param obj JSONObject containing the information about the url discovered.
      */
-    protected void notify(MagnetScannerItem item) {
-        mCallback.onItemFound(item);
+    protected void onItemFound(MagnetScannerItem item) {
+        mListener.onItemFound(item);
     }
+    protected void onItemLost(MagnetScannerItem item) {
+        mListener.onItemLost(item);
+    }
+
 }

@@ -3,11 +3,18 @@ package org.mozilla.magnet.scanner;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+
 public class MagnetScannerItem {
     private double mDistance = -1;
     private String mDevice;
+    private long mLastSeen;
     private String mType;
     private String mUrl;
+
+    public MagnetScannerItem() {
+        touch();
+    }
 
     public void setUrl(String url) { mUrl = url; }
     public String getUrl() { return mUrl; }
@@ -20,6 +27,12 @@ public class MagnetScannerItem {
 
     public void setType(String type) { mType = type; }
     public String getType() { return mType; }
+
+    public long getLastSeen() { return mLastSeen; }
+
+    public void touch() {
+        mLastSeen = System.currentTimeMillis();
+    }
 
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
@@ -34,5 +47,13 @@ public class MagnetScannerItem {
         }
 
         return json;
+    }
+
+    public HashMap toHashMap() {
+        HashMap<String, Object> hash = new HashMap<>();
+        hash.put("url", mUrl);
+        hash.put("distance", mDistance);
+        hash.put("type", mType);
+        return hash;
     }
 }

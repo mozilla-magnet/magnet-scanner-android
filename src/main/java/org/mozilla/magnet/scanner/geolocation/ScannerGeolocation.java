@@ -41,7 +41,7 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
     private final static int MIN_DISTANCE_CHANGE_METERS = 10;
     private final static int LOCATION_INTERVAL = 3000;
     private final static int MIN_ACCURACY_METERS = 20;
-    private final static int SCAN_RADIUS_METERS = 25;
+    private final static int SCAN_RADIUS_METERS = 50;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private RequestQueue mQueue;

@@ -27,7 +27,34 @@ Scanner scanner = new Scanner(getApplicationContext());
 
 scanner.start();
 
-// later on
+// ... later
+
 scanner.stop();
 scanner.removeListener(this);
+```
+
+### Background Scanning
+
+```java
+scanner.startBackgroundScanning();
+
+// ... later
+
+scanner.stopBackgroundScanning();
+```
+
+#### AndroidManifest.xml
+
+```xml
+<receiver android:name=".MyReceiver">
+  <intent-filter>
+    <action android:name="org.mozilla.magnet.scanner.ITEMS_FOUND" />
+  </intent-filter>
+</receiver>
+```
+
+##### MyReceiver.java
+
+```java
+ArrayList items = (ArrayList) intent.getSerializableExtra("items");
 ```

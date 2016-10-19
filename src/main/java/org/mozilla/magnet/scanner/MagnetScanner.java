@@ -1,112 +1,135 @@
 package org.mozilla.magnet.scanner;
 
 import android.content.Context;
+import android.util.Log;
 
-import org.mozilla.magnet.scanner.ble.ScannerBLE;
+import org.mozilla.magnet.scanner.ble.ScannerBle;
 import org.mozilla.magnet.scanner.geolocation.ScannerGeolocation;
-import org.mozilla.magnet.scanner.mdns.ScannerMDNS;
+import org.mozilla.magnet.scanner.mdns.ScannerMdns;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * This class offers the capabilities of discovering urls that are around you.
- * That is, is a library for the Physical Web.
- * It also allows to configure which kind of discovery mechanism you want to
- * use.
- * When starting the scan you will need to pass a callback object implementing
- * MagnetScannerCallback to receive the results discovered.
- * For example, for discovering web pages via Bluetooth Low Energy and mDNS
- * you can use:
- * <pre>
- * {@code
- * MagnetScanner scanner = new MagnetScanner(getApplicationContext());
- * scanner.useBLE().useMDNS();
- * scanner.start(...);
- *}
- * </pre>
- * The notified results are JSONObjects, which will have a mandatory field 'url'
- * with the recently discovered url, and a optional 'metadata' field, with extra
- * information provided by the different discovery mechanism.
- *
- * @author Francisco Jordano
- */
 public class MagnetScanner {
+    private static final String TAG = "MagnetScanner";
+    private BackgroundScannerClient mBackgroundScannerClient;
+
     /**
-     * List of different scanning strategies.
+     * List of installed scanners.
      */
-    private final Map<String, BaseScanner> mScanners = new HashMap<String, BaseScanner>();
+    private final Map<String, BaseScanner> mScanners = new HashMap<>();
     private Context mContext = null;
 
     /**
      * Constructor with Context.
-     * @param ctx Context needed to instantiate some of the scanners
+     * @param context Context needed to instantiate some of the scanners
      */
-    public MagnetScanner(Context ctx) {
-        mContext = ctx;
+    public MagnetScanner(Context context) {
+        mContext = context;
+        mBackgroundScannerClient = new BackgroundScannerClient(mContext);
     }
 
     /**
-     * Configures the scanner to use the Bluetooth Low Energy scan.
-     * @param btleScanner ScannerBLE scanner object, used for testing
-     * @return MagnetScanner self object to allow chaining.
+     * Install the BLE scanner.
+     * @return MagnetScanner
      */
-    public MagnetScanner useBLE(ScannerBLE btleScanner) {
-        if (!mScanners.containsKey(ScannerBLE.class.getName())) {
-            if (btleScanner == null) {
-                btleScanner = new ScannerBLE(mContext);
-            }
-            mScanners.put(ScannerBLE.class.getName(), btleScanner);
+    public MagnetScanner useBle() {
+        return useBle(new ScannerBle(mContext));
+    }
+
+    public MagnetScanner useBle(ScannerBle scanner) {
+        if (!mScanners.containsKey(ScannerBle.class.getName())) {
+            mScanners.put(ScannerBle.class.getName(), scanner);
         }
+
         return this;
     }
 
     /**
-     * Configures the scanner to use mDNS scan.
-     * @param mdnsScanner MagnetScanner already build, used for testing.
-     * @return MagnetScanner self object to allow chaining.
+     * Install the mDNS scanner.
+     * @return MagnetScanner
      */
-    public MagnetScanner useMDNS(ScannerMDNS mdnsScanner) {
-        if (!mScanners.containsKey(ScannerMDNS.class.getName())) {
-            if (mdnsScanner == null) {
-                mdnsScanner = new ScannerMDNS(mContext);
-            }
-            mScanners.put(ScannerMDNS.class.getName(), mdnsScanner);
+    public MagnetScanner useMdns() {
+        return useMdns(new ScannerMdns(mContext));
+    }
+
+    public MagnetScanner useMdns(ScannerMdns scanner) {
+        if (!mScanners.containsKey(ScannerMdns.class.getName())) {
+            mScanners.put(ScannerMdns.class.getName(), scanner);
         }
+
         return this;
     }
 
     /**
-     * Configures the scanner to use geolocation scan.
-     * @return MagnetScanner self object to allow chaining.
+     * Install the geolocation scanner.
+     * @return MagnetScanner
      */
-    public MagnetScanner useGeolocation(ScannerGeolocation scanner) {
+    public MagnetScanner useGeolocation() {
         if (!mScanners.containsKey(ScannerGeolocation.class.getName())) {
-            if (scanner == null) {
-                scanner = new ScannerGeolocation(mContext);
-            }
-            mScanners.put(ScannerGeolocation.class.getName(), scanner);
+            mScanners.put(ScannerGeolocation.class.getName(), new ScannerGeolocation(mContext));
         }
+
         return this;
     }
 
     /**
-     * Once the object has been configure with the different scannig strategies, you need
-     * to call `start` to properly trigger the scanning.
-     * @param cb Callback object that will be invoked everytime any scanner finds a web around you.
+     * Install the GeolocationScanner with optional listeners.
+     * @param listeners
+     * @return
      */
-    public void start(MagnetScannerCallback cb) {
-        for (BaseScanner scanner: mScanners.values()) {
-            scanner.start(cb);
-        }
+    public MagnetScanner useGeolocation(ScannerGeolocation.Listeners listeners) {
+        useGeolocation();
+        String name = ScannerGeolocation.class.getName();
+        ScannerGeolocation scannerGeolocation = (ScannerGeolocation) mScanners.get(name);
+        scannerGeolocation.addListeners(listeners);
+        return this;
     }
 
     /**
-     * Stops the scanning strategies.
+     * Start all scanners scanning.
+     * @param listener
+     * @return
      */
-    public void stop() {
+    public MagnetScanner start(MagnetScannerListener listener) {
+        Log.d(TAG, "start");
+
+        for (BaseScanner scanner: mScanners.values()) {
+            scanner.start(listener);
+        }
+
+        return this;
+    }
+
+    /**
+     * Stop all scanners scanning.
+     * @return
+     */
+    public MagnetScanner stop() {
+        Log.d(TAG, "stop");
+
         for (BaseScanner scanner: mScanners.values()) {
             scanner.stop();
         }
+
+        return this;
+    }
+
+    /**
+     * Starts periodic background scans.
+     * Should be called when app goes into the background.
+     */
+    public void startBackgroundScanning() {
+        Log.d(TAG, "start background scanning");
+        mBackgroundScannerClient.start();
+    }
+
+    /**
+     * Stops periodic background scans.
+     * Should be called when app comes back into foreground.
+     */
+    public void stopBackgroundScanning() {
+        Log.d(TAG, "stop background scanning");
+        mBackgroundScannerClient.stop();
     }
 }

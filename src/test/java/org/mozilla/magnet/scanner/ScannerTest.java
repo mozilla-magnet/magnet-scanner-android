@@ -12,8 +12,8 @@ import org.junit.runners.JUnit4;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mozilla.magnet.scanner.ble.ScannerBLE;
-import org.mozilla.magnet.scanner.mdns.ScannerMDNS;
+import org.mozilla.magnet.scanner.ble.ScannerBle;
+import org.mozilla.magnet.scanner.mdns.ScannerMdns;
 
 import java.util.Map;
 
@@ -25,13 +25,15 @@ public class ScannerTest extends TestCase {
     @Mock private Map<String, BaseScanner> scannersList;
     @InjectMocks private MagnetScanner magnetScanner;
     @Mock private Context context;
-    @Mock private ScannerBLE btleScanner;
-    @Mock private ScannerMDNS mdnsScanner;
+    @Mock private ScannerBle btleScanner;
+    @Mock private ScannerMdns mdnsScanner;
 
     @Before
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
-        magnetScanner.useBLE(btleScanner).useMDNS(mdnsScanner);
+        magnetScanner
+                .useBle(btleScanner)
+                .useMdns(mdnsScanner);
     }
 
     @After
@@ -41,9 +43,14 @@ public class ScannerTest extends TestCase {
 
     @Test
     public void start() {
-        MagnetScannerCallback cb = new MagnetScannerCallback() {
+        MagnetScannerListener cb = new MagnetScannerListener() {
             @Override
             public void onItemFound(MagnetScannerItem obj) {
+
+            }
+
+            @Override
+            public void onItemLost(MagnetScannerItem obj) {
 
             }
         };

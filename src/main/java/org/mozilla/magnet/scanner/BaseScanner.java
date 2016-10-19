@@ -18,10 +18,6 @@ public abstract class BaseScanner {
     private MagnetScannerListener mListener;
     private final HashMap<String,MagnetScannerItem> mItems = new HashMap<String,MagnetScannerItem>();
 
-    public BaseScanner(MagnetScannerListener listener) {
-        mListener = listener;
-    }
-
     /**
      * Returns a string that defines the name of the scanner strategy implemented
      * @return String name for the strategy implemented.
@@ -31,7 +27,10 @@ public abstract class BaseScanner {
     /**
      * Performs the real scanning process, once the scanner object has been configured.
      */
-    protected abstract void start();
+    @CallSuper
+    public void start(MagnetScannerListener listener) {
+        mListener = listener;
+    }
 
     /**
      * Stops the scanning
@@ -72,5 +71,4 @@ public abstract class BaseScanner {
     protected void onItemLost(MagnetScannerItem item) {
         mListener.onItemLost(item);
     }
-
 }

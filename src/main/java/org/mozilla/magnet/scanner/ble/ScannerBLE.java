@@ -9,6 +9,7 @@ import android.util.Log;
 
 import org.json.JSONArray;
 import org.mozilla.magnet.scanner.BaseScanner;
+import org.mozilla.magnet.scanner.MagnetScanner;
 import org.mozilla.magnet.scanner.MagnetScannerItem;
 import org.mozilla.magnet.scanner.MagnetScannerListener;
 
@@ -36,8 +37,7 @@ public class ScannerBLE extends BaseScanner implements BluetoothAdapter.LeScanCa
      * Constructor with context needed to launch the BTLE scanner.
      * @param context Context
      */
-    public ScannerBLE(Context context, MagnetScannerListener listener) {
-        super(listener);
+    public ScannerBLE(Context context) {
         mContext = context;
         final BluetoothManager bluetoothManager = (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBTAdapter = bluetoothManager.getAdapter();
@@ -56,7 +56,8 @@ public class ScannerBLE extends BaseScanner implements BluetoothAdapter.LeScanCa
      * Starts the scanning.
      */
     @Override
-    protected void start() {
+    public void start(MagnetScannerListener listener) {
+        super.start(listener);
         Log.d(TAG, "starting scan");
         mHandler = new Handler();
         mBTAdapter.startLeScan(this);

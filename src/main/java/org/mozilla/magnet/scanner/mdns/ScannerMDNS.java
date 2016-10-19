@@ -28,14 +28,13 @@ public class ScannerMDNS extends BaseScanner implements NsdManager.DiscoveryList
      * Constructor with Context, needed to start the mDNS service.
      * @param ctx Context object.
      */
-    public ScannerMDNS(Context ctx, MagnetScannerListener listener) {
-        super(listener);
+    public ScannerMDNS(Context ctx) {
         mContext = ctx;
         mNsdManager = (NsdManager) mContext.getSystemService(Context.NSD_SERVICE);
     }
 
     /**
-     * Kind of scanner type.
+     * Scanner type.
      * @return String name of the scanner.
      */
     @Override
@@ -43,7 +42,6 @@ public class ScannerMDNS extends BaseScanner implements NsdManager.DiscoveryList
         return SCAN_TYPE;
     }
 
-    //  Called as soon as service discovery begins.
     @Override
     public void onDiscoveryStarted(String regType) {
         Log.d(TAG, "Service discovery started");
@@ -53,9 +51,7 @@ public class ScannerMDNS extends BaseScanner implements NsdManager.DiscoveryList
     public void onServiceFound(NsdServiceInfo service) {
         Log.d(TAG, "service found: " + service);
         String url = getUrl(service);
-
         if (url == null) { return; }
-
         MagnetScannerItem item = new MagnetScannerItem();
         item.setUrl(url);
         item.setType(scannerType());
@@ -64,13 +60,9 @@ public class ScannerMDNS extends BaseScanner implements NsdManager.DiscoveryList
 
     @Override
     public void onServiceLost(NsdServiceInfo service) {
-        // When the network service is no longer available.
-        // Internal bookkeeping code goes here.
         Log.e(TAG, "service lost" + service);
-
         String url = getUrl(service);
         if (url == null) { return; }
-
         removeItem(url);
     }
 
@@ -104,7 +96,8 @@ public class ScannerMDNS extends BaseScanner implements NsdManager.DiscoveryList
      * Starts the mDNS discovery.
      */
     @Override
-    protected void start() {
+    public void start(MagnetScannerListener listener) {
+        super.start(listener);
         mNsdManager.discoverServices(MDNS_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, this);
     }
 

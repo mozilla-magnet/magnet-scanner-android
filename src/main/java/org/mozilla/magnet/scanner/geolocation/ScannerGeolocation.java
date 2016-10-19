@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -23,9 +24,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.magnet.scanner.BaseScanner;
+import org.mozilla.magnet.scanner.MagnetScanner;
 import org.mozilla.magnet.scanner.MagnetScannerItem;
 import org.mozilla.magnet.scanner.MagnetScannerListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,9 +45,9 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private RequestQueue mQueue;
+    private Listeners mListeners;
 
-    public ScannerGeolocation(Context context, MagnetScannerListener listener) {
-        super(listener);
+    public ScannerGeolocation(Context context) {
         mQueue = Volley.newRequestQueue(context);
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(LocationServices.API)
@@ -59,7 +62,8 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
     }
 
     @Override
-    protected void start() {
+    public void start(MagnetScannerListener listener) {
+        super.start(listener);
         Log.d(TAG, "start");
         if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
@@ -70,11 +74,14 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
     public void stop() {
         super.stop();
         Log.d(TAG, "stop");
-
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
+    }
+
+    public void addListeners(Listeners listeners) {
+        mListeners = listeners;
     }
 
     @Override
@@ -146,11 +153,13 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
             @Override
             public void onResponse(JSONArray response) {
                 onScanResponse(response);
+                onScanComplete();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "request error: " + error);
+                onScanComplete();
             }
         });
 
@@ -162,6 +171,7 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
 
         HashMap<String,MagnetScannerItem> oldItems = getItems();
         HashMap<String,MagnetScannerItem> newItems = inflateJsonItems(json);
+        ArrayList<String> toRemove = new ArrayList<>();
 
         // remove old items
         Iterator iterator = oldItems.entrySet().iterator();
@@ -171,8 +181,14 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
 
             // remove old items not found in the latest scan
             if (!newItems.containsKey(id)) {
-                removeItem(id);
+                toRemove.add(id);
             }
+        }
+
+        // remove items in separate loop to avoid
+        // `ConcurrentModificationException`
+        for (String id: toRemove) {
+            removeItem(id);
         }
 
         // add new items
@@ -187,6 +203,12 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
                 addItem(item);
             }
         }
+    }
+
+    private void onScanComplete() {
+        Log.d(TAG, "on scan complete");
+        if (mListeners == null) { return; }
+        mListeners.onGeolocationScanComplete();
     }
 
     /**
@@ -211,5 +233,9 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
         }
 
         return result;
+    }
+
+    public interface Listeners {
+        public void onGeolocationScanComplete();
     }
 }

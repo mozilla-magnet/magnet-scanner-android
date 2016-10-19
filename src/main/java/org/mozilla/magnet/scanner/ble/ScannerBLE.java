@@ -7,14 +7,11 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
-import org.json.JSONArray;
 import org.mozilla.magnet.scanner.BaseScanner;
-import org.mozilla.magnet.scanner.MagnetScanner;
 import org.mozilla.magnet.scanner.MagnetScannerItem;
 import org.mozilla.magnet.scanner.MagnetScannerListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -24,8 +21,8 @@ import java.util.Map;
  *
  * @author Francisco Jordano
  */
-public class ScannerBLE extends BaseScanner implements BluetoothAdapter.LeScanCallback {
-    private final String TAG = ScannerBLE.class.getName();
+public class ScannerBle extends BaseScanner implements BluetoothAdapter.LeScanCallback {
+    private final String TAG = ScannerBle.class.getName();
     private final int EXPIRE_CHECK_INTERVAL_MS = 6000;
     private final int ITEM_MAX_AGE_MS = 5000;
     private final static String TYPE = "ble";
@@ -37,7 +34,7 @@ public class ScannerBLE extends BaseScanner implements BluetoothAdapter.LeScanCa
      * Constructor with context needed to launch the BTLE scanner.
      * @param context Context
      */
-    public ScannerBLE(Context context) {
+    public ScannerBle(Context context) {
         mContext = context;
         final BluetoothManager bluetoothManager = (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         mBTAdapter = bluetoothManager.getAdapter();

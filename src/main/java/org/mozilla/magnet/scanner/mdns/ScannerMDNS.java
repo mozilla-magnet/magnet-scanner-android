@@ -6,8 +6,6 @@ import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
 import android.webkit.URLUtil;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mozilla.magnet.scanner.BaseScanner;
 import org.mozilla.magnet.scanner.MagnetScannerItem;
 import org.mozilla.magnet.scanner.MagnetScannerListener;
@@ -17,8 +15,8 @@ import org.mozilla.magnet.scanner.MagnetScannerListener;
  *
  * @author Francisco Jordano
  */
-public class ScannerMDNS extends BaseScanner implements NsdManager.DiscoveryListener {
-    private final static String TAG = ScannerMDNS.class.getName();
+public class ScannerMdns extends BaseScanner implements NsdManager.DiscoveryListener {
+    private final static String TAG = ScannerMdns.class.getName();
     private final static String MDNS_SERVICE_TYPE = "_http._tcp.";
     private final static String SCAN_TYPE = "mdns";
     private Context mContext = null;
@@ -28,7 +26,7 @@ public class ScannerMDNS extends BaseScanner implements NsdManager.DiscoveryList
      * Constructor with Context, needed to start the mDNS service.
      * @param ctx Context object.
      */
-    public ScannerMDNS(Context ctx) {
+    public ScannerMdns(Context ctx) {
         mContext = ctx;
         mNsdManager = (NsdManager) mContext.getSystemService(Context.NSD_SERVICE);
     }

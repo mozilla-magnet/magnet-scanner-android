@@ -37,13 +37,13 @@ public class ServiceBackgroundScanner extends Service implements MagnetScannerLi
         if (mScanning) { return; }
         Log.d(TAG, "start");
 
-        mItems = new ArrayList<MagnetScannerItem>();
+        mItems = new ArrayList<>();
         mTimeStarted = System.currentTimeMillis();
 
         mMagnetScanner = new MagnetScanner(this)
-                .useBLE(null)
-                .useMDNS(null)
-                .useGeolocation(this)
+                .useBle()
+                .useMdns()
+                .useGeolocation()
                 .start(this);
 
         addStopListener();
@@ -115,7 +115,7 @@ public class ServiceBackgroundScanner extends Service implements MagnetScannerLi
         // wait until the minimum time has been reached
         long remaining = MIN_SCAN_DURATION_MS - elapsed;
         setTimeout(remaining);
-        Log.d(TAG, "will scan for " + remaining + " more");
+        Log.d(TAG, "scanning for " + remaining + "ms longer");
     }
 
     /**
@@ -127,6 +127,14 @@ public class ServiceBackgroundScanner extends Service implements MagnetScannerLi
         stop();
     }
 
+    /**
+     * Background scans must be stopped when the
+     * app comes back to the foreground to prevent
+     * unnecessary notifications popping up.
+     *
+     * To achieve this we send a 'STOP_SCAN' broadcast from
+     * MagnetScanner when .stopBackgroundScanning() is called.
+     */
     private void addStopListener() {
         LocalBroadcastManager
                 .getInstance(this)

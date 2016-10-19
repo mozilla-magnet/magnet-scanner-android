@@ -71,6 +71,7 @@ public class ServiceBackgroundScanner extends Service implements MagnetScannerLi
         removeStopListener();
         mItems.clear();
         mScanning = false;
+        stopSelf();
     }
 
     private Runnable onScanComplete = new Runnable() {
@@ -106,7 +107,7 @@ public class ServiceBackgroundScanner extends Service implements MagnetScannerLi
     public void addStopListener() {
         LocalBroadcastManager
                 .getInstance(this)
-                .registerReceiver(mReceiver, new IntentFilter(MagnetScanner.ACTION_STOP_SCAN));
+                .registerReceiver(mReceiver, new IntentFilter(BackgroundScannerClient.ACTION_STOP_SCAN));
     }
 
     public void removeStopListener() {

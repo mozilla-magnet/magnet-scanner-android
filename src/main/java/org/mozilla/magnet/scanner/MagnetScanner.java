@@ -4,7 +4,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -24,40 +23,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-/**
- * This class offers the capabilities of discovering urls that are around you.
- * That is, is a library for the Physical Web.
- * It also allows to configure which kind of discovery mechanism you want to
- * use.
- * When starting the scan you will need to pass a callback object implementing
- * MagnetScannerCallback to receive the results discovered.
- * For example, for discovering web pages via Bluetooth Low Energy and mDNS
- * you can use:
- * <pre>
- * {@code
- * MagnetScanner scanner = new MagnetScanner(getApplicationContext());
- * scanner.useBLE().useMDNS();
- * scanner.start(...);
- *}
- * </pre>
- * The notified results are JSONObjects, which will have a mandatory field 'url'
- * with the recently discovered url, and a optional 'metadata' field, with extra
- * information provided by the different discovery mechanism.
- *
- * @author Francisco Jordano
- */
-public class MagnetScanner implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MagnetScannerListener {
+public class MagnetScanner implements MagnetScannerListener {
     private static final String TAG = "MagnetScanner";
-    public static final String ACTION_START_SCAN = "org.mozilla.magnet.scanner.START_SCAN";
-    public static final String ACTION_STOP_SCAN = "org.mozilla.magnet.scanner.STOP_SCAN";
-    public static final long BACKGROUND_SCAN_INTERVAL = TimeUnit.MINUTES.toMillis(5);
-    public static final long BACKGROUND_SCAN_INTERVAL_FASTEST = BACKGROUND_SCAN_INTERVAL / 6;
     private ArrayList<MagnetScannerListener> mListeners = new ArrayList<>();
-    private PendingIntent mPendingIntentLocation;
-    private boolean mBackgroundScanning = false;
+    private BackgroundScannerClient mBackgroundScannerClient;
     private GoogleApiClient mGoogleApiClient;
-    private Runnable mScanComplete;
-    private Handler mHandler;
 
     /**
      * List of installed scanners.
@@ -67,10 +37,11 @@ public class MagnetScanner implements GoogleApiClient.ConnectionCallbacks, Googl
 
     /**
      * Constructor with Context.
-     * @param ctx Context needed to instantiate some of the scanners
+     * @param context Context needed to instantiate some of the scanners
      */
-    public MagnetScanner(Context ctx) {
-        mContext = ctx;
+    public MagnetScanner(Context context) {
+        mContext = context;
+        mBackgroundScannerClient = new BackgroundScannerClient(mContext);
     }
 
     /**
@@ -169,59 +140,12 @@ public class MagnetScanner implements GoogleApiClient.ConnectionCallbacks, Googl
     }
 
     public void startBackgroundScanning() {
-        if (mBackgroundScanning) return;
         Log.d(TAG, "start background scanning");
-
-        mGoogleApiClient = new GoogleApiClient.Builder(mContext)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
-        mGoogleApiClient.connect();
+        mBackgroundScannerClient.start();
     }
 
     public void stopBackgroundScanning() {
-        if (!mBackgroundScanning) return;
         Log.d(TAG, "stop background scanning");
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, mPendingIntentLocation);
-
-        // send a broadcast to tell background scanner to stop
-        Intent intent = new Intent(MagnetScanner.ACTION_STOP_SCAN);
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-
-        mGoogleApiClient.disconnect();
-        mBackgroundScanning = false;
+        mBackgroundScannerClient.stop();
     }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.d(TAG, "on connected");
-        LocationRequest locationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(BACKGROUND_SCAN_INTERVAL)
-                .setSmallestDisplacement(10)
-                .setFastestInterval(BACKGROUND_SCAN_INTERVAL_FASTEST);
-
-        Intent intent = new Intent(ACTION_START_SCAN);
-        intent.putExtra("started", System.currentTimeMillis());
-        mPendingIntentLocation = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, mPendingIntentLocation);
-        mBackgroundScanning = true;
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.d(TAG, "connection suspended");
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "connection failed");
-    }
-
-    public interface ScanCallback {
-        public void onScanComplete(ArrayList<MagnetScannerItem> items);
-    }
-
 }

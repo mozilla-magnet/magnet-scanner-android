@@ -25,13 +25,13 @@ public class ReceiverBackgroundScanner extends BroadcastReceiver {
         Intent serviceIntent = new Intent(context, ServiceBackgroundScanner.class);
 
         Bundle bundle = intent.getExtras();
-        long timeStarted = bundle.getLong("started");
+        long timeStarted = bundle.getLong("timestamp");
         long elapsed = System.currentTimeMillis() - timeStarted;
 
         // the background requestLocationUpdates fires as soon as
         // it's scheduled; we ignore any broadcasts that happen
         // 'too soon' after the app haes gone to the background
-        if (elapsed < MagnetScanner.BACKGROUND_SCAN_INTERVAL_FASTEST) {
+        if (elapsed < BackgroundScannerClient.BACKGROUND_SCAN_INTERVAL_FASTEST) {
             Log.d(TAG, "too soon to scan: " + elapsed);
             return;
         }

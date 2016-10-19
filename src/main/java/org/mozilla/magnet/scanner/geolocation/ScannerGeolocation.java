@@ -97,26 +97,32 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
         Log.d(TAG, "lon: " + lat);
         Log.d(TAG, "accuracy: " + accuracy);
 
-        // quality-check the location before use
-        if (!isValidNextLocation(location)) { return; }
-        mLastLocation = location;
+        if (accuracy > MIN_ACCURACY_METERS) {
+            Log.d(TAG, "not accurate enough");
+            return;
+        }
 
+        // quality-check the location before use
+        if (!isValidNextLocation(location)) {
+            Log.d(TAG, "location didn't change");
+            return;
+        }
+
+        mLastLocation = location;
         scan(location);
     }
 
     /**
-     * In order for a location to be 'valid' it must be
-     * accurate enough and there must either not be an
-     * existing location or the location just be far
-     * enough away from the last scanned location
-     * to warrant us scannign again.
+     * In order for a location to be 'valid' there must
+     * either not be an existing location or the location
+     * just be far enough away from the last scanned location
+     * to warrant us scanning again.
      *
      * @param location
      * @return boolean
      */
     private boolean isValidNextLocation(Location location) {
-        return location.getAccuracy() > MIN_ACCURACY_METERS
-            && (mLastLocation == null || (location.distanceTo(mLastLocation) < MIN_DISTANCE_CHANGE_METERS));
+        return mLastLocation == null || location.distanceTo(mLastLocation) > MIN_DISTANCE_CHANGE_METERS;
     }
 
     @Override
@@ -130,11 +136,11 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
     }
 
     private void scan(Location location) {
-        Log.d(TAG, "scanning ...");
         String lat = String.valueOf(location.getLatitude());
         String lon = String.valueOf(location.getLongitude());
         String url = API_SEARCH_URL + lat + "," + lon + "," + SCAN_RADIUS_METERS;
         int method = Request.Method.GET;
+        Log.d(TAG, "scanning: " + url);
 
         JsonArrayRequest request = new JsonArrayRequest(method, url, null, new Response.Listener<JSONArray>() {
             @Override

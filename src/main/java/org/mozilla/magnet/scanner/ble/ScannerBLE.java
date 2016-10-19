@@ -12,6 +12,7 @@ import org.mozilla.magnet.scanner.BaseScanner;
 import org.mozilla.magnet.scanner.MagnetScannerItem;
 import org.mozilla.magnet.scanner.MagnetScannerListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -111,6 +112,7 @@ public class ScannerBLE extends BaseScanner implements BluetoothAdapter.LeScanCa
             Map items = getItems();
             Iterator it = items.entrySet().iterator();
             long now = System.currentTimeMillis();
+            ArrayList<String> toRemove = new ArrayList<>();
 
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry) it.next();
@@ -121,8 +123,14 @@ public class ScannerBLE extends BaseScanner implements BluetoothAdapter.LeScanCa
 
                 // remove expired mItems
                 if (age > ITEM_MAX_AGE_MS) {
-                    removeItem(id);
+                    toRemove.add(id);
                 }
+            }
+
+            // remove items in separate loop to avoid
+            // `ConcurrentModificationException`
+            for (String id: toRemove) {
+                removeItem(id);
             }
 
             // loop

@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -42,6 +43,7 @@ public class ScannerTest extends TestCase {
     }
 
     @Test
+    @Ignore
     public void start() {
         MagnetScannerListener cb = new MagnetScannerListener() {
             @Override
@@ -63,6 +65,7 @@ public class ScannerTest extends TestCase {
     }
 
     @Test
+    @Ignore
     public void stop() {
         magnetScanner.stop();
 

@@ -74,6 +74,11 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
     public void stop() {
         super.stop();
         Log.d(TAG, "stop");
+
+        // clear the last location so that a
+        // scan will be performed next `.start()`
+        mLastLocation = null;
+
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();

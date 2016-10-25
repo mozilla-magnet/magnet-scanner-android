@@ -85,7 +85,7 @@ android.libraryVariants.all { variant ->
 }
 
 dependencies {
-    compile "com.google.android.gms:play-services-location:9.6.1"
+    compile "com.google.android.gms:play-services-location:9.8.0"
     compile "com.android.volley:volley:1.0.0"
     testCompile 'junit:junit:4.12'
     testCompile('com.android.support.test:runner:0.4') {

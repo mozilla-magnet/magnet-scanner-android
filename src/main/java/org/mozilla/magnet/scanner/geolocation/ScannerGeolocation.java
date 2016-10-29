@@ -65,6 +65,7 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
     public void start(MagnetScannerListener listener) {
         super.start(listener);
         Log.d(TAG, "start");
+
         if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
         }
@@ -75,26 +76,41 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
         super.stop();
         Log.d(TAG, "stop");
 
-        // clear the last location so that a
-        // scan will be performed next `.start()`
-        mLastLocation = null;
-
-        if (mGoogleApiClient != null) {
+        // there's a chance that the GoogleApiClient might not
+        // be connected yet, in which case we can't disconnect
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
+
+        // clear the last location so that a
+        // scan will be performed next `.start()`
+        mLastLocation = null;
     }
 
     public void addListeners(Listeners listeners) {
         mListeners = listeners;
     }
 
+    /**
+     * Called when the GoogleApiClient is connected
+     * and we're ready to register for location updates.
+     *
+     * There is a chance that the scanner could have been
+     * stopped before the GoogleApiClient has connected.
+     * To prevent errors we check that the scanner isn't
+     * 'stopped'.
+     *
+     * @param connectionHint
+     */
     @Override
     public void onConnected(Bundle connectionHint) {
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(LOCATION_INTERVAL);
-        locationRequest.setFastestInterval(LOCATION_INTERVAL);
+        if (!isStarted()) return;
+
+        LocationRequest locationRequest = LocationRequest.create()
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            .setInterval(LOCATION_INTERVAL)
+            .setFastestInterval(LOCATION_INTERVAL);
 
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
     }

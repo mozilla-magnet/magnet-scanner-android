@@ -95,6 +95,7 @@ public class ScannerMdns extends BaseScanner implements NsdManager.DiscoveryList
      */
     @Override
     public void start(MagnetScannerListener listener) {
+        if (isStarted()) return;
         super.start(listener);
         mNsdManager.discoverServices(MDNS_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, this);
     }
@@ -104,6 +105,7 @@ public class ScannerMdns extends BaseScanner implements NsdManager.DiscoveryList
      */
     @Override
     public void stop() {
+        if (isStopped()) return;
         super.stop();
         mNsdManager.stopServiceDiscovery(this);
     }

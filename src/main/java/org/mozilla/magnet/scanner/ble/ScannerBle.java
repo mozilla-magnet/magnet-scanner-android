@@ -54,6 +54,7 @@ public class ScannerBle extends BaseScanner implements BluetoothAdapter.LeScanCa
      */
     @Override
     public void start(MagnetScannerListener listener) {
+        if (isStarted()) return;
         super.start(listener);
         Log.d(TAG, "starting scan");
         mHandler = new Handler();
@@ -66,6 +67,7 @@ public class ScannerBle extends BaseScanner implements BluetoothAdapter.LeScanCa
      */
     @Override
     public void stop() {
+        if (isStopped()) return;
         super.stop();
         Log.d(TAG, "stopping scan");
         mBTAdapter.stopLeScan(this);

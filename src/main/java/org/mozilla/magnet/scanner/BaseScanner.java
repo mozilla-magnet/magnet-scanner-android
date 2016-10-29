@@ -17,6 +17,7 @@ public abstract class BaseScanner {
     private final static String TAG = "BaseScanner";
     private MagnetScannerListener mListener;
     private final HashMap<String,MagnetScannerItem> mItems = new HashMap<String,MagnetScannerItem>();
+    private boolean mStarted = false;
 
     /**
      * Returns a string that defines the name of the scanner strategy implemented
@@ -29,7 +30,9 @@ public abstract class BaseScanner {
      */
     @CallSuper
     public void start(MagnetScannerListener listener) {
+        if (isStarted()) return;
         mListener = listener;
+        mStarted = true;
     }
 
     /**
@@ -37,18 +40,28 @@ public abstract class BaseScanner {
      */
     @CallSuper
     public void stop() {
+        if (isStopped()) return;
         mItems.clear();
+        mStarted = false;
+    }
+
+    protected boolean isStarted() {
+        return mStarted;
+    }
+
+    protected boolean isStopped() {
+        return !isStarted();
     }
 
     public HashMap<String, MagnetScannerItem> getItems() {
         return mItems;
     }
 
-    public MagnetScannerItem getItem(String id) {
+    protected MagnetScannerItem getItem(String id) {
         return mItems.get(id);
     }
 
-    public void addItem(MagnetScannerItem item) {
+    protected void addItem(MagnetScannerItem item) {
         Log.d(TAG, "add item: " + item.getUrl());
         mItems.put(item.getUrl(), item);
         mListener.onItemFound(item);

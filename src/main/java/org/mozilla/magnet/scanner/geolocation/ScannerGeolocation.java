@@ -41,13 +41,14 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
     private final static int MIN_DISTANCE_CHANGE_METERS = 10;
     private final static int LOCATION_INTERVAL = 3000;
     private final static int MIN_ACCURACY_METERS = 20;
-    private final static int SCAN_RADIUS_METERS = 50;
+    private final static int SCAN_RADIUS_METERS = 100;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private RequestQueue mQueue;
     private Listeners mListeners;
 
     public ScannerGeolocation(Context context) {
+        Log.d(TAG, "create");
         mQueue = Volley.newRequestQueue(context);
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(LocationServices.API)
@@ -244,9 +245,9 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
             try {
                 JSONObject jsonItem = jsonArray.getJSONObject(i);
                 String url = SLUG_BASE_URL + jsonItem.getString("slug");
-                MagnetScannerItem scannerItem = new MagnetScannerItem();
+                MagnetScannerItem scannerItem = new MagnetScannerItem(url);
                 scannerItem.setType(SCANNER_TYPE);
-                scannerItem.setUrl(url);
+                scannerItem.setChannelId(jsonItem.getString("channel_id"));
                 result.put(url, scannerItem);
             } catch (JSONException e) {
                 e.printStackTrace();

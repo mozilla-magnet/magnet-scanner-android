@@ -21,8 +21,7 @@ public class ReceiverBackgroundScanner extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "on receive: " + intent.getAction());
-        Intent serviceIntent = new Intent(context, ServiceBackgroundScanner.class);
+        Log.i(TAG, "on receive: " + intent.getAction());
 
         Bundle bundle = intent.getExtras();
         long timeStarted = bundle.getLong("timestamp");
@@ -32,10 +31,12 @@ public class ReceiverBackgroundScanner extends BroadcastReceiver {
         // it's scheduled; we ignore any broadcasts that happen
         // 'too soon' after the app haes gone to the background
         if (elapsed < BackgroundScannerClient.BACKGROUND_SCAN_INTERVAL_FASTEST) {
-            Log.d(TAG, "too soon to scan: " + elapsed);
+            Log.i(TAG, "too soon to scan: " + elapsed);
             return;
         }
 
+        Log.i(TAG, "starting background scanner");
+        Intent serviceIntent = new Intent(context, ServiceBackgroundScanner.class);
         context.startService(serviceIntent);
     }
 }

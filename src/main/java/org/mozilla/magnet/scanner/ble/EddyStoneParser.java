@@ -61,7 +61,6 @@ public class EddyStoneParser {
      *  If the parser cannot find information of it's imcomplete, will return null.
      */
     public static MagnetScannerItem parse(byte[] record, int rssi) {
-        MagnetScannerItem item = new MagnetScannerItem();
         byte[] serviceData = parseEddystoneRecord(record);
         int currentPos = 0;
         byte flags;
@@ -90,7 +89,7 @@ public class EddyStoneParser {
             return null;
         }
 
-        item.setUrl(uri);
+        MagnetScannerItem item = new MagnetScannerItem(uri);
         item.setDistance(calculateDistance(txPowerLevel, rssi));
 
         return item;

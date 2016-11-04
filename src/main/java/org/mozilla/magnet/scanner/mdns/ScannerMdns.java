@@ -50,8 +50,7 @@ public class ScannerMdns extends BaseScanner implements NsdManager.DiscoveryList
         Log.d(TAG, "service found: " + service);
         String url = getUrl(service);
         if (url == null) { return; }
-        MagnetScannerItem item = new MagnetScannerItem();
-        item.setUrl(url);
+        MagnetScannerItem item = new MagnetScannerItem(url);
         item.setType(scannerType());
         addItem(item);
     }

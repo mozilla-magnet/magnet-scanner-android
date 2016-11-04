@@ -30,7 +30,7 @@ public class ServiceBackgroundScanner extends Service implements MagnetScannerLi
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "on start command");
         start();
-        return super.onStartCommand(intent, flags, startId);
+        return Service.START_STICKY;
     }
 
     private void start() {
@@ -165,7 +165,7 @@ public class ServiceBackgroundScanner extends Service implements MagnetScannerLi
         ArrayList<HashMap> result = new ArrayList<HashMap>();
 
         for (MagnetScannerItem item: items) {
-            result.add(item.toHashMap());
+            result.add(item.serialize());
         }
 
         return result;

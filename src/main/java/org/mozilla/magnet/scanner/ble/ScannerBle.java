@@ -58,6 +58,7 @@ public class ScannerBle extends BaseScanner implements BluetoothAdapter.LeScanCa
         super.start(listener);
         Log.d(TAG, "starting scan");
         mHandler = new Handler();
+        if (mBTAdapter == null) return;
         mBTAdapter.startLeScan(this);
         startExpireCheck();
     }
@@ -70,6 +71,7 @@ public class ScannerBle extends BaseScanner implements BluetoothAdapter.LeScanCa
         if (isStopped()) return;
         super.stop();
         Log.d(TAG, "stopping scan");
+        if (mBTAdapter == null) return;
         mBTAdapter.stopLeScan(this);
         stopExpireCheck();
     }

@@ -20,18 +20,18 @@ import java.util.concurrent.TimeUnit;
  * Created by wilsonpage on 19/10/2016.
  */
 
-public class BackgroundScannerClient implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+class BackgroundScannerClient implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private final static String TAG = "BackgroundScannerClient";
     public static final String ACTION_START_SCAN = "org.mozilla.magnet.scanner.START_SCAN";
     public static final String ACTION_STOP_SCAN = "org.mozilla.magnet.scanner.STOP_SCAN";
     public static final long BACKGROUND_SCAN_INTERVAL = TimeUnit.MINUTES.toMillis(10);
     public static final long BACKGROUND_SCAN_INTERVAL_FASTEST = TimeUnit.MINUTES.toMillis(1);
-    GoogleApiClient mGoogleApiClient;
-    boolean mStarting = false;
-    boolean mStopping = false;
-    Context mContext;
+    private GoogleApiClient mGoogleApiClient;
+    private boolean mStarting = false;
+    private boolean mStopping = false;
+    private Context mContext;
 
-    public BackgroundScannerClient(Context context) {
+    BackgroundScannerClient(Context context) {
         mContext = context;
     }
 

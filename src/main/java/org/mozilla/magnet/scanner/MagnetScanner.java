@@ -37,7 +37,7 @@ public class MagnetScanner {
         return useBle(new ScannerBle(mContext));
     }
 
-    public MagnetScanner useBle(ScannerBle scanner) {
+    MagnetScanner useBle(ScannerBle scanner) {
         if (!mScanners.containsKey(ScannerBle.class.getName())) {
             mScanners.put(ScannerBle.class.getName(), scanner);
         }
@@ -53,7 +53,7 @@ public class MagnetScanner {
         return useMdns(new ScannerMdns(mContext));
     }
 
-    public MagnetScanner useMdns(ScannerMdns scanner) {
+    MagnetScanner useMdns(ScannerMdns scanner) {
         if (!mScanners.containsKey(ScannerMdns.class.getName())) {
             mScanners.put(ScannerMdns.class.getName(), scanner);
         }

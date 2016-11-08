@@ -1,13 +1,11 @@
 package org.mozilla.magnet.scanner;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.HashMap;
-import java.util.Map;
 
 public class MagnetScannerItem {
     private double mDistance = -1;
+    private Double mLatitude;
+    private Double mLongitude;
     private String mChannelId;
     private String mImageUri;
     private String mTitle;
@@ -39,8 +37,27 @@ public class MagnetScannerItem {
         mDistance = distance;
         return this;
     }
+
     public double getDistance() {
         return mDistance;
+    }
+
+    public MagnetScannerItem setLatitude(double latitude) {
+        mLatitude = latitude;
+        return this;
+    }
+
+    public Double getLatitude() {
+        return mLatitude;
+    }
+
+    public MagnetScannerItem setLongitude(double longitude) {
+        mLongitude = longitude;
+        return this;
+    }
+
+    public Double getLongitude() {
+        return mLongitude;
     }
 
     public MagnetScannerItem setType(String type) {
@@ -69,7 +86,6 @@ public class MagnetScannerItem {
     public String getImage() {
         return mImageUri;
     }
-
 
     public MagnetScannerItem setIcon(String iconUri) {
         mIconUri = iconUri;
@@ -103,6 +119,10 @@ public class MagnetScannerItem {
         hash.put("url", getUrl());
         hash.put("distance", getDistance());
         hash.put("channel_id", getChannelId());
+        if (getLatitude() != null && getLongitude() != null) {
+            hash.put("latitude", getLatitude());
+            hash.put("longitude", getLongitude());
+        }
         return hash;
     }
 }

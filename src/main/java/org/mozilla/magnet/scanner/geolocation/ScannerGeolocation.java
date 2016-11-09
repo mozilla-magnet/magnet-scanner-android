@@ -4,7 +4,6 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -24,7 +23,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.magnet.scanner.BaseScanner;
-import org.mozilla.magnet.scanner.MagnetScanner;
 import org.mozilla.magnet.scanner.MagnetScannerItem;
 import org.mozilla.magnet.scanner.MagnetScannerListener;
 
@@ -36,7 +34,6 @@ import java.util.Map;
 public class ScannerGeolocation extends BaseScanner implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
     private final static String TAG = "ScannerGeolocation";
     private final static String SCANNER_TYPE = "geolocation";
-    private final static String SLUG_BASE_URL = "https://tengam.org/";
     private final static String API_SEARCH_URL = "https://tengam.org/content/v1/search/beacons/";
     private final static int MIN_DISTANCE_CHANGE_METERS = 10;
     private final static int LOCATION_INTERVAL = 3000;
@@ -244,10 +241,13 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
         for (int i = 0 ; i < jsonArray.length(); i++) {
             try {
                 JSONObject jsonItem = jsonArray.getJSONObject(i);
-                String url = SLUG_BASE_URL + jsonItem.getString("slug");
+                String url = jsonItem.getString("url");
                 MagnetScannerItem scannerItem = new MagnetScannerItem(url);
                 scannerItem.setType(SCANNER_TYPE);
                 scannerItem.setChannelId(jsonItem.getString("channel_id"));
+                JSONObject jsonLocation = jsonItem.getJSONObject("location");
+                scannerItem.setLatitude(jsonLocation.getDouble("latitude"));
+                scannerItem.setLongitude(jsonLocation.getDouble("longitude"));
                 result.put(url, scannerItem);
             } catch (JSONException e) {
                 e.printStackTrace();

@@ -113,7 +113,12 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
             .setInterval(LOCATION_INTERVAL)
             .setFastestInterval(LOCATION_INTERVAL);
 
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+        try {
+            // throws if the app hasn't been granted location permissions yet
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+        } catch (SecurityException exception) {
+            Log.e(TAG, exception.toString());
+        }
     }
 
     @Override

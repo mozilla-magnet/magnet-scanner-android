@@ -73,8 +73,13 @@ class BackgroundScannerClient implements GoogleApiClient.ConnectionCallbacks, Go
                 .setSmallestDisplacement(10)
                 .setFastestInterval(BACKGROUND_SCAN_INTERVAL_FASTEST);
 
-        PendingIntent pendingIntent = getPendingIntent();
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, pendingIntent);
+        try {
+            // throws if the app hasn't been granted location permissions yet
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, getPendingIntent());
+        } catch (SecurityException exception) {
+            Log.e(TAG, exception.toString());
+        }
+
         mStarting = false;
     }
 

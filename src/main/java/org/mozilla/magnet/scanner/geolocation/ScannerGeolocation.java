@@ -246,7 +246,7 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
         for (int i = 0 ; i < jsonArray.length(); i++) {
             try {
                 JSONObject jsonItem = jsonArray.getJSONObject(i);
-                String url = jsonItem.getString("url");
+                String url = jsonItem.getString("short_url");
                 MagnetScannerItem scannerItem = new MagnetScannerItem(url);
                 scannerItem.setType(SCANNER_TYPE);
                 scannerItem.setChannelId(jsonItem.getString("channel_id"));

@@ -1,8 +1,11 @@
 package org.mozilla.magnet.scanner.mdns;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
+
 import android.util.Log;
 import android.webkit.URLUtil;
 
@@ -89,12 +92,24 @@ public class ScannerMdns extends BaseScanner implements NsdManager.DiscoveryList
         return name;
     }
 
+    private boolean isLanConnection() {
+        ConnectivityManager cm =
+                  (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
     /**
      * Starts the mDNS discovery.
      */
     @Override
     public void start(MagnetScannerListener listener) {
         if (isStarted()) return;
+        if (!isLanConnection()) {
+            return;
+        }
+
         super.start(listener);
         mNsdManager.discoverServices(MDNS_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, this);
     }

@@ -39,13 +39,20 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
     private final static int LOCATION_INTERVAL = 3000;
     private final static int MIN_ACCURACY_METERS = 20;
     private final static int SCAN_RADIUS_METERS = 100;
+    private final String mApiSearchUrl;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private RequestQueue mQueue;
     private Listeners mListeners;
 
     public ScannerGeolocation(Context context) {
+        this(context, API_SEARCH_URL);
+    }
+
+    public ScannerGeolocation(Context context, String apiUrl) {
         Log.d(TAG, "create");
+
+        mApiSearchUrl = apiUrl;
         mQueue = Volley.newRequestQueue(context);
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(LocationServices.API)
@@ -169,7 +176,7 @@ public class ScannerGeolocation extends BaseScanner implements ConnectionCallbac
     private void scan(Location location) {
         String lat = String.valueOf(location.getLatitude());
         String lon = String.valueOf(location.getLongitude());
-        String url = API_SEARCH_URL + lat + "," + lon + "," + SCAN_RADIUS_METERS;
+        String url = mApiSearchUrl + lat + "," + lon + "," + SCAN_RADIUS_METERS;
         int method = Request.Method.GET;
         Log.d(TAG, "scanning: " + url);
 

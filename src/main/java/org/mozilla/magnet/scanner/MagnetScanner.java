@@ -61,13 +61,21 @@ public class MagnetScanner {
         return this;
     }
 
+    public MagnetScanner useGeolocation() {
+        if (!mScanners.containsKey(ScannerGeolocation.class.getName())) {
+            mScanners.put(ScannerGeolocation.class.getName(), new ScannerGeolocation(mContext));
+        }
+
+        return this;
+    }
+
     /**
      * Install the geolocation scanner.
      * @return MagnetScanner
      */
-    public MagnetScanner useGeolocation() {
+    public MagnetScanner useGeolocation(String apiUrl) {
         if (!mScanners.containsKey(ScannerGeolocation.class.getName())) {
-            mScanners.put(ScannerGeolocation.class.getName(), new ScannerGeolocation(mContext));
+            mScanners.put(ScannerGeolocation.class.getName(), new ScannerGeolocation(mContext, apiUrl));
         }
 
         return this;
